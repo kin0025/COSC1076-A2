@@ -1,0 +1,13 @@
+#!/bin/sh
+#Search for line number length
+for f in *.c *.h; do
+  echo -en $f '\t'
+  awk '{print length, $0}' $f 2>/dev/null| sort -nr | head -1
+done
+echo 
+
+#Checks for unix line endings
+file *.c *.h
+
+#Search for unedited headers
+grep "EDIT HERE" *.c *.h

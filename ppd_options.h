@@ -1,10 +1,10 @@
 /***********************************************************************
  * COSC1076 - Advanced Programming Techniques
  * Semester 2 2016 Assignment #2
- * Full Name        : EDIT HERE
- * Student Number   : EDIT HERE
- * Course Code      : EDIT HERE
- * Program Code     : EDIT HERE
+ * Full Name        : Alexander Chi-Cheng Kinross-Smith
+ * Student Number   : s3603437
+ * Course Code      : COSC1076
+ * Program Code     : BH094
  * Start up code provided by Paul Miller 
  * Some codes are adopted here with permission by an anonymous author
  ***********************************************************************/
