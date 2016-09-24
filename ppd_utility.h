@@ -13,6 +13,7 @@
 #include "ppd_main.h"
 #ifndef PPD_UTILITY
 #define PPD_UTILITY
+#define DATA_DELIMITER "|"
 /**
  * @file ppd_utility.h defines some helper functions for the rest of your
  * program. In particular, it declares three of the most important 

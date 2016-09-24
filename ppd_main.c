@@ -24,34 +24,70 @@
  * data and handles the processing of options. The bulk of this function
  * should simply be calling other functions to get the job done.
  **/
-int main(int argc, char **argv)
-{
-    /* uncomment this menu structure when you are ready to work on the 
-     * menu system with function pointers
-    struct menu_item menu[NUM_MENU_ITEMS];
+int main(int argc, char **argv) {
+   BOOLEAN keep_running = FALSE;
+   char *data_name = NULL,*coin_name = NULL;
+   FILE * data_file = NULL, *coin_file = NULL;
+   /* uncomment this menu structure when you are ready to work on the
+    * menu system with function pointers
+   struct menu_item menu[NUM_MENU_ITEMS];
+   */
+
+
+   /* validate command line arguments */
+   switch (argc){
+      case 3:
+         coin_name = argv[2];
+         coin_file = fopen(coin_name,'r');
+         if(coin_file == NULL){
+            fprintf(stderr,"Unable to open file",data_name);
+            printf("Coin file failed to load");
+            return EXIT_FAILURE;
+         }
+         fclose(coin_file);
+         printf("We apologise, but this function is not implemented yet.");
+      case 2:
+         data_name = argv[1];
+         data_file = fopen(data_name,'r');
+         if(data_file == NULL){
+            fprintf(stderr,"Unable to open file",data_name);
+            printf("Data file failed to load");
+            return EXIT_FAILURE;
+         }
+         fclose(data_file);
+         break;
+      default:
+         printf("Sorry, you need to provide a command line argument to the "
+                        "location of the database. Try items.dat if unsure.");
+
+      }
+
+
+   /* represents the data structures to manage the system */
+   struct ppd_system system;
+   (void) system;
+   /* init the system */
+   system_init(system);
+   /* load data */
+
+   /*load_coins(system,); */
+   load_stock(&system,data_name);
+
+   /* test if everything has been initialised correctly */
+
+   /* initialise the menu system */
+
+   /* loop, asking for options from the menu */
+   while (keep_running) {
+
+   }
+   /* run each option selected */
+
+   /* until the user quits */
+
+   /* make sure you always free all memory and close all files
+    * before you exit the program
     */
-    /* validate command line arguments */
 
-    /* represents the data structures to manage the system */
-    struct ppd_system system;
-    (void)system;
-    /* init the system */
-
-    /* load data */
-
-    /* test if everything has been initialised correctly */
-
-    /* initialise the menu system */
-
-    /* loop, asking for options from the menu */
-
-    /* run each option selected */
-
-    /* until the user quits */
-
-    /* make sure you always free all memory and close all files 
-     * before you exit the program
-     */
-
-    return EXIT_SUCCESS;
+   return EXIT_SUCCESS;
 }

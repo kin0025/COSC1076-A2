@@ -15,6 +15,25 @@ ppd_coin.h
 README=ppd_readme
 MAKEFILE=Makefile
 
+COMPILER = gcc
+
+OBJ=ppd_main.o ppd_menu.o ppd_options.o ppd_utility.o ppd_stock.o ppd_coin.o
+PROG = ppd
+DEBUG = -g
+CFLAGS = -Wall -ansi $(DEBUG)
+
+all: $(OBJ)
+$(CC) $(CFLAGS) -o $(PROG) $(OBJ)
+
+%.o: $(SOURCES) $(HEADERS)
+$(CC) $(CFLAGS) -c -o $@ $^
+
+clean:
+@echo "Cleaning output"
+rm -f *.o $(PROG)
+
+
+
 ########################################################################
 # Move this target to the end of the Makefile to zip up your code 
 # when submitting. Do not submit your .dat files, or directories. 
