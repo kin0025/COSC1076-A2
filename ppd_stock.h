@@ -39,6 +39,14 @@
  **/
 #define DESCLEN 255
 
+
+#define COSTLEN 5
+
+#define NUMBERDELIMS 5
+
+#define ONHANDLEN 3
+
+#define FILE_LINE_LEN (IDLEN+NAMELEN+DESCLEN+COSTLEN+ONHANDLEN+NUMBERDELIMS)
 /**
  * The default coin level to reset the coins to on request
  **/
@@ -160,6 +168,9 @@ struct ppd_system
     BOOLEAN coin_from_file;
 };
 
+
+BOOLEAN init_list(ppd_system *system);
+int get_largest_description(ppd_system *system);
 #endif
 
 

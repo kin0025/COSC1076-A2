@@ -26,14 +26,30 @@
  * all the information for managing the system.
  * @return true as this particular function should never fail.
  **/
-BOOLEAN display_items(struct ppd_system * system)
-{
-    /*
-     * Please delete this default return value once this function has 
-     * been implemented. Please note that it is convention that until
-     * a function has been implemented it should return FALSE
-     */
-    return FALSE;
+BOOLEAN display_items(struct ppd_system *system) {
+   int desc_len;
+   ppd_node * current;
+   ppd_stock *item;
+
+   printf("Items Menu\n");
+   desc_len = get_largest_description(system);
+   printf("%-5s|%*s|%s|%-5s\n","ID",desc_len,"Name",
+          "Available","Price");
+   current = system->item_list->head;
+   while(current != NULL){
+      item = current->data;
+      printf("%-5s|%*s|%-9d|\$%-2d\.%-2d\n",item->id,desc_len,item->name,
+             item->on_hand,item->price.dollars,item->price.cents);
+
+      current = current->next;
+   }
+
+   /*
+    * Please delete this default return value once this function has
+    * been implemented. Please note that it is convention that until
+    * a function has been implemented it should return FALSE
+    */
+   return TRUE;
 }
 
 /**
@@ -41,14 +57,13 @@ BOOLEAN display_items(struct ppd_system * system)
  * all the information for managing the system.
  * @return true when a purchase succeeds and false when it does not
  **/
-BOOLEAN purchase_item(struct ppd_system * system)
-{
-    /*
-     * Please delete this default return value once this function has 
-     * been implemented. Please note that it is convention that until
-     * a function has been implemented it should return FALSE
-     */
-    return FALSE;
+BOOLEAN purchase_item(struct ppd_system *system) {
+   /*
+    * Please delete this default return value once this function has
+    * been implemented. Please note that it is convention that until
+    * a function has been implemented it should return FALSE
+    */
+   return FALSE;
 }
 
 /**
@@ -56,14 +71,13 @@ BOOLEAN purchase_item(struct ppd_system * system)
  * all the information for managing the system.
  * @return true when a save succeeds and false when it does not
  **/
-BOOLEAN save_system(struct ppd_system * system)
-{
-    /*
-     * Please delete this default return value once this function has 
-     * been implemented. Please note that it is convention that until
-     * a function has been implemented it should return FALSE
-     */
-    return FALSE;
+BOOLEAN save_system(struct ppd_system *system) {
+   /*
+    * Please delete this default return value once this function has
+    * been implemented. Please note that it is convention that until
+    * a function has been implemented it should return FALSE
+    */
+   return FALSE;
 }
 
 /**
@@ -71,14 +85,13 @@ BOOLEAN save_system(struct ppd_system * system)
  * all the information for managing the system.
  * @return true when adding an item succeeds and false when it does not
  **/
-BOOLEAN add_item(struct ppd_system * system)
-{
-    /*
-     * Please delete this default return value once this function has 
-     * been implemented. Please note that it is convention that until
-     * a function has been implemented it should return FALSE
-     */
-    return FALSE;
+BOOLEAN add_item(struct ppd_system *system) {
+   /*
+    * Please delete this default return value once this function has
+    * been implemented. Please note that it is convention that until
+    * a function has been implemented it should return FALSE
+    */
+   return FALSE;
 }
 
 /**
@@ -86,14 +99,13 @@ BOOLEAN add_item(struct ppd_system * system)
  * all the information for managing the system.
  * @return true when removing an item succeeds and false when it does not
  **/
-BOOLEAN remove_item(struct ppd_system * system)
-{
-    /*
-     * Please delete this default return value once this function has 
-     * been implemented. Please note that it is convention that until
-     * a function has been implemented it should return FALSE
-     */
-    return FALSE;
+BOOLEAN remove_item(struct ppd_system *system) {
+   /*
+    * Please delete this default return value once this function has
+    * been implemented. Please note that it is convention that until
+    * a function has been implemented it should return FALSE
+    */
+   return FALSE;
 }
 
 /**
@@ -101,14 +113,13 @@ BOOLEAN remove_item(struct ppd_system * system)
  * all the information for managing the system.
  * @return true as this function cannot fail.
  **/
-BOOLEAN reset_stock(struct ppd_system * system)
-{
-    /*
-     * Please delete this default return value once this function has 
-     * been implemented. Please note that it is convention that until
-     * a function has been implemented it should return FALSE
-     */
-    return FALSE;
+BOOLEAN reset_stock(struct ppd_system *system) {
+   /*
+    * Please delete this default return value once this function has
+    * been implemented. Please note that it is convention that until
+    * a function has been implemented it should return FALSE
+    */
+   return FALSE;
 }
 
 /**
@@ -116,14 +127,13 @@ BOOLEAN reset_stock(struct ppd_system * system)
  * all the information for managing the system.
  * @return true as this function cannot fail.
  **/
-BOOLEAN reset_coins(struct ppd_system * system)
-{
-    /*
-     * Please delete this default return value once this function has 
-     * been implemented. Please note that it is convention that until
-     * a function has been implemented it should return FALSE
-     */
-    return FALSE;
+BOOLEAN reset_coins(struct ppd_system *system) {
+   /*
+    * Please delete this default return value once this function has
+    * been implemented. Please note that it is convention that until
+    * a function has been implemented it should return FALSE
+    */
+   return FALSE;
 }
 
 /**
@@ -131,12 +141,20 @@ BOOLEAN reset_coins(struct ppd_system * system)
  * all the information for managing the system.
  * @return true as this function cannot fail
  **/
-BOOLEAN display_coins(struct ppd_system * system)
-{
-    /*
-     * Please delete this default return value once this function has 
-     * been implemented. Please note that it is convention that until
-     * a function has been implemented it should return FALSE
-     */
-    return FALSE;
+BOOLEAN display_coins(struct ppd_system *system) {
+   /*
+    * Please delete this default return value once this function has
+    * been implemented. Please note that it is convention that until
+    * a function has been implemented it should return FALSE
+    */
+   return FALSE;
+}
+
+BOOLEAN save_exit(struct ppd_system *system) {
+   /*
+    * Please delete this default return value once this function has
+    * been implemented. Please note that it is convention that until
+    * a function has been implemented it should return FALSE
+    */
+   return FALSE;
 }

@@ -33,7 +33,8 @@ void read_rest_of_line(void) {
  **/
 BOOLEAN system_init(struct ppd_system *system) {
    void_balances(system->cash_register);
-   system->item_list = NULL;
+   init_list(system);
+
    /*
      * Please delete this default return value once this function has 
      * been implemented. Please note that it is convention that until
@@ -47,41 +48,65 @@ BOOLEAN system_init(struct ppd_system *system) {
  * implemented as part of requirement 2 of the assignment specification.
  **/
 BOOLEAN load_stock(struct ppd_system *system, const char *filename) {
-   FILE *data_file;
-   char *token = NULL, *current_item = NULL;
-   ppd_stock *stock_item;
+   FILE *data_file = NULL;
+   char *token = NULL, *current_item = NULL, price[COSTLEN + 1], *ptr = NULL;
+   ppd_stock stock_item;
+   int onhand;
 
-   data_file = fopen(filename,'r');
+   data_file = fopen(system->stock_file_name, 'r');
 
-   current_item =
-   token = strtok(current_item, DATA_DELIMITER);
-   while(token != NULL) {
+
+   while (current_item = read_file_input(token, FILE_LINE_LEN, data_file)) {
+      token = strtok(current_item, DATA_DELIMITER);
+
       stock_item->id = *token;
+
       token = strtok(NULL, DATA_DELIMITER);
+
       stock_item->name = *token;
+
       token = strtok(NULL, DATA_DELIMITER);
+
       stock_item->desc = *token;
+
       token = strtok(NULL, DATA_DELIMITER);
-      stock_item->price = *token;
+
+      price = *token;
+      ptr = strtok(price, PRICEDELIM);
+      stock_item.price.dollars = *ptr;
+      ptr = strtok(NULL, PRICEDELIM);
+      stock_item.price.dollars = *ptr;
+      ptr = NULL;
+
       token = strtok(NULL, DATA_DELIMITER);
-      stock_item->on_hand = *token;
 
       token = strtok(current_item, DATA_DELIMITER);
-   }
 
+      /* Check that the integer conversion went successfully */
+      if (to_int(token, &onhand) || onhand < 0) {
+         stock_item = NULL;
+      } else {
+         stock_item.on_hand = onhand;
+      }
+
+
+      if (stock_item != NULL) {
+         add_stock(stock_item, system);
+      }
+   }
    /*
     * Please delete this default return value once this function has
     * been implemented. Please note that it is convention that until
     * a function has been implemented it should return FALSE
     */
-   return FALSE;
+   return TRUE;
 }
 
 /**
  * loads the contents of the coins file into the system. This needs to
  * be implemented as part 1 of requirement 18.
  **/
-BOOLEAN load_coins(struct ppd_system *system, const char *) {
+BOOLEAN load_coins(struct ppd_system *system, const char *filename) {
    if (system->coin_from_file == TRUE) {
       FILE coin_file = fopen(system->coin_file_name);
 
@@ -106,11 +131,11 @@ void system_free(struct ppd_system *system) {
 }
 
 /*Reused Partially from Assignment 1 */
-BOOLEAN read_file_input(char *buffer, int length , FILE *file) {
+BOOLEAN read_file_input(char *buffer, int length, FILE *file) {
    BOOLEAN overflow = FALSE;
    do {
       /* Check for EOF input and return false, receive input */
-      if (fgets(buffer, length + EXTRACHARS, stdin) == NULL) {
+      if (fgets(buffer, length + 1, file) == NULL) {
          return FALSE;
       }
 
@@ -162,4 +187,85 @@ BOOLEAN read_user_input(char *buffer, int length) {
       return FALSE;
    }
    return TRUE;
+}
+
+/* Returns true if the first name is earlier in the alphabet than the second */
+BOOLEAN name_sort(char first[NAMELEN + 1], char second[NAMELEN + 1]) {
+
+   char a = 97, b = 98, c = 99;
+
+
+   BOOLEAN match = TRUE;
+   BOOLEAN is_smaller = TRUE;
+   int i = 0;
+
+   while (match && i < NAMELEN) {
+      if (first[i] != second[i]) {
+         match = FALSE;
+      } else if (first[i] < second[i]) {
+         match = FALSE;
+         is_smaller = TRUE;
+      }
+      i++;
+   }
+   if (match) {
+      return match;
+   } else {
+      return is_smaller;
+   }
+
+}
+
+int read_int(void) {
+   char buffer[MAX_INT_LEN+ EXTRACHARS];
+   int output;
+   char *ptr = NULL;
+   BOOLEAN running = TRUE;
+   do {
+      /* read the input */
+      fgets(buffer, LINELEN, stdin);
+      /* check if we overflowed the buffer and fix it if we did*/
+      if (buffer[strlen(buffer) - 1] != '\n') {
+         read_rest_of_line();
+         printf("Input too long, please try again\n");
+         running = TRUE;
+         continue;
+      }
+      /* Remove the extra null terminator */
+      buffer[strlen(buffer) - 1] = NULL_TERMINATOR;
+
+      /* Convert the remaining to integer */
+      output = (int) strtol(buffer, &ptr, BASE);
+
+      /* Check that the integer conversion went successfully */
+      if (output == -1 || ptr == buffer) {
+         printf("The input was not a parsable number.\n");
+         running = TRUE;
+      } else if (strlen(ptr) != 0) {
+         printf("There was more than just a number entered, please try "
+                        "again.\n");
+         running = TRUE;
+      } else {
+         running = FALSE;
+      }
+   } while (running);
+   return output;
+}
+
+BOOLEAN to_int(char *input, int *output) {
+   char *ptr = NULL;
+   BOOLEAN error = FALSE;
+   /* Convert the remaining to integer */
+   output = (int) strtol(buffer, &ptr, BASE);
+
+   /* Check that the integer conversion went successfully */
+   if (output == -1 || ptr == buffer) {
+      printf("The input was not a parsable number.\n");
+      error = FALSE;
+   } else if (strlen(ptr) != 0) {
+      printf("There was more than just a number entered, please try "
+                     "again.\n");
+      error = FALSE;
+   }
+   return error;
 }

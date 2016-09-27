@@ -24,6 +24,8 @@
 /* represents a function that can be selected from the list of 
  * menu_functions - creates a new type called a menu_function 
  */
+
+#define NUM_MENU_ITEMS 9
 typedef BOOLEAN (*menu_function)(struct ppd_system*);
 /**
  * represents a menu item to be displayed and executed in the program
@@ -55,5 +57,5 @@ struct menu_item
  **/
 void init_menu( struct menu_item*);
 
-menu_function get_menu_choice(void);
+menu_function get_menu_choice(struct menu_item*);
 #endif

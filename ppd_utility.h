@@ -52,6 +52,9 @@ BOOLEAN load_stock(struct ppd_system *, const char *);
  **/
 BOOLEAN load_coins(struct ppd_system *, const char *);
 
+
+#define BASE 10
+#define PRICEDELIM "."
 /**
  * free all memory that has been allocated. If you are struggling to
  * find all your memory leaks, compile your program with the -g flag
@@ -61,4 +64,10 @@ BOOLEAN load_coins(struct ppd_system *, const char *);
  * memory addresses.
  **/
 void system_free(struct ppd_system *);
+
+int read_int(void);
+
+BOOLEAN to_int(char * input, int * output);
+
+
 #endif

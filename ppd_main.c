@@ -25,13 +25,11 @@
  * should simply be calling other functions to get the job done.
  **/
 int main(int argc, char **argv) {
-   BOOLEAN keep_running = FALSE;
+   BOOLEAN keep_running = TRUE;
    char *data_name = NULL,*coin_name = NULL;
    FILE * data_file = NULL, *coin_file = NULL;
-   /* uncomment this menu structure when you are ready to work on the
-    * menu system with function pointers
+menu_function * menu_choice;
    struct menu_item menu[NUM_MENU_ITEMS];
-   */
 
 
    /* validate command line arguments */
@@ -57,37 +55,43 @@ int main(int argc, char **argv) {
          fclose(data_file);
          break;
       default:
-         printf("Sorry, you need to provide a command line argument to the "
-                        "location of the database. Try items.dat if unsure.");
+         printf("You need to provide one or two arguments to the "
+                        "location of the files to load.");
 
       }
 
 
    /* represents the data structures to manage the system */
    struct ppd_system system;
-   (void) system;
    /* init the system */
    system_init(system);
+   system.coin_file_name = coin_name;
+   system.stock_file_name = data_name;
    /* load data */
+   load_stock(system,data_name);
+
 
    /*load_coins(system,); */
-   load_stock(&system,data_name);
+   system.coin_from_file = FALSE;
+   load_coins(system,coin_name);
 
    /* test if everything has been initialised correctly */
 
    /* initialise the menu system */
-
+   init_menu(menu);
    /* loop, asking for options from the menu */
    while (keep_running) {
+       menu_choice = get_menu_choice(menu);
+keep_running = **menu_choice(system);
+      /* run each option selected */
 
+      /* until the user quits */
    }
-   /* run each option selected */
-
-   /* until the user quits */
-
    /* make sure you always free all memory and close all files
     * before you exit the program
     */
+   save_system(system);
+   system_free(system);
 
    return EXIT_SUCCESS;
 }

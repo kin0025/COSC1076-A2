@@ -24,4 +24,7 @@ typedef enum truefalse
      **/
     TRUE
 } BOOLEAN;
+
+#define MAX_INT_LEN 5
+#define EXTRACHARS 2
 #endif
