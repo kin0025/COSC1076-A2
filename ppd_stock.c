@@ -18,7 +18,6 @@
 
 BOOLEAN add_stock(struct ppd_stock stock, struct ppd_system *system) {
    int i = 0;
-   struct ppd_list *list = NULL;
    struct ppd_node *new_node = NULL;
    struct ppd_node *current = NULL, *last = NULL;
    BOOLEAN stock_added = FALSE;
@@ -30,7 +29,7 @@ BOOLEAN add_stock(struct ppd_stock stock, struct ppd_system *system) {
       return FALSE;
    }
 
-   new_node->data = stock;
+   new_node->data = &stock;
    new_node->next = NULL;
 
    current = system->item_list->head;
@@ -60,31 +59,28 @@ BOOLEAN add_stock(struct ppd_stock stock, struct ppd_system *system) {
 
 
 BOOLEAN remove_stock(struct ppd_system *system, char id[IDLEN + 1]) {
-   int i;
-   struct ppd_list *list = NULL;
+   int i = 0;
    struct ppd_node *current = NULL, *last = NULL;
-   BOOLEAN stock_added = FALSE;
-
-   new_node->data = stock;
-   new_node->next = NULL;
+   BOOLEAN stock_removed = FALSE;
 
    current = system->item_list->head;
 
-   while (current->next != NULL && !stock_added) {
-      if (name_sort(stock.name, current->data->name)) {
-         if (i != 0) {
-            last->next = new_node;
+   while (current != NULL && !stock_removed) {
+      if (strcmp(current->data->id, id) == 0) {
+         if (i == 0) {
+            system->item_list->head = current->next;
          } else {
-            system->item_list->head = new_node;
+            last->next = current->next;
          }
-         new_node->next = current;
-         stock_added = TRUE;
+         del_node(current);
+         stock_removed = TRUE;
       }
       last = current;
       current = current->next;
+      i++;
    }
 
-   return stock_added;
+   return stock_removed;
 }
 
 BOOLEAN init_list(struct ppd_system *system) {
@@ -134,44 +130,47 @@ int get_next_id(struct ppd_system *system) {
    int max_id = 1, i, current_id;
    char id[IDLEN];
    struct ppd_node *current = NULL;
+   BOOLEAN int_success;
+
    current = system->item_list->head;
 
    while (current != NULL) {
       for (i = 1; i < IDLEN; i++) {
          id[i - 1] = current->data->id[i];
       }
-      if (!to_int(id, &current_id)) {
+      int_success = to_int(id, &current_id);
+      if (!int_success) {
          fprintf(stderr, "Invalid ID transform");
       }
-      if (current->data->id > max_id) {
-         max_id = current->data->id;
+      if (current_id > max_id) {
+         max_id = current_id;
       }
       current = current->next;
    }
 
-   return get_next_id(system);
+   return max_id;
 }
 
-struct ppd_node *create_node (void) {
-   struct ppd_node *returnVal = malloc (sizeof (struct ppd_node));
+struct ppd_node *create_node(void) {
+   struct ppd_node *returnVal = malloc(sizeof(struct ppd_node));
    if (returnVal == NULL)
       return NULL;
 
 
-   returnVal->data = malloc (sizeof (ppd_stock));
+   returnVal->data = malloc(sizeof(struct ppd_stock));
    if (returnVal->data == NULL) {
-      free (returnVal);
+      free(returnVal);
       return NULL;
    }
 
 
-   return retVal;
+   return returnVal;
 }
 
 void del_node(struct ppd_node *node) {
 
    if (node != NULL) {
-      free (node->data);
-      free (node);
+      free(node->data);
+      free(node);
    }
 }

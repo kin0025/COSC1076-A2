@@ -91,7 +91,7 @@ BOOLEAN purchase_item(struct ppd_system *system) {
          cents_paid = read_int();
       } while (!is_valid_denom(cents_paid));
 
-      cents_due = (amount_due.dollars * CENTSINDOLLAR) + amount_due.cents;
+      cents_due = (amount_due.dollars * CENTS_IN_DOLLAR) + amount_due.cents;
       cents_due -= cents_paid;
 
       amount_due = coins_to_price(cents_due);

@@ -22,6 +22,9 @@
 struct ppd_system;
 struct price;
 
+#define CENTS_IN_DOLLAR 100
+
+#define VALID_DENOMS {5,10,20,50,100,200,500,1000}
 
 /**
  * The number of denominations of currency available in the system
@@ -53,7 +56,6 @@ struct coin {
 };
 
 
-#define VALID_DENOMS {5,10,20,50,100,200,500,1000}
 
 BOOLEAN void_balances(struct coin cash_register[NUM_DENOMS]);
 

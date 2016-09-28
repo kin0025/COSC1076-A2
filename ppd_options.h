@@ -83,7 +83,6 @@ BOOLEAN reset_coins(struct ppd_system *);
 BOOLEAN display_coins(struct ppd_system *);
 
 #define COINLEN 5
-#define CENTSINDOLLAR 100
 
 
 #endif
