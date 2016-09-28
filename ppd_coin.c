@@ -14,7 +14,7 @@
   * @file ppd_coin.c implement functions here for managing coins in the
   * "cash register" contained in the @ref ppd_system struct.
   **/
-BOOLEAN void_balances(struct coin *cash_register[NUM_DENOMS]) {
+BOOLEAN void_balances(struct coin cash_register[NUM_DENOMS]) {
     int i;
     for (i = 0; i < NUM_DENOMS; i++) {
        cash_register[i]->denom = i;

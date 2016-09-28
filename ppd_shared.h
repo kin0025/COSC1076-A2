@@ -27,4 +27,6 @@ typedef enum truefalse
 
 #define MAX_INT_LEN 5
 #define EXTRACHARS 2
+#define NULL_TERMINATOR '\0'
+
 #endif

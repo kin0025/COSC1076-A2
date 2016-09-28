@@ -11,6 +11,7 @@
 
 #include <stdio.h>
 #include "ppd_main.h"
+
 #ifndef PPD_UTILITY
 #define PPD_UTILITY
 #define DATA_DELIMITER "|"
@@ -55,6 +56,7 @@ BOOLEAN load_coins(struct ppd_system *, const char *);
 
 #define BASE 10
 #define PRICEDELIM "."
+
 /**
  * free all memory that has been allocated. If you are struggling to
  * find all your memory leaks, compile your program with the -g flag
@@ -67,8 +69,14 @@ void system_free(struct ppd_system *);
 
 int read_int(void);
 
-BOOLEAN to_int(char * input, int * output);
+BOOLEAN to_int(char *input, int *output);
+
 BOOLEAN read_user_input(char *buffer, int length);
+
 BOOLEAN read_file_input(char *buffer, int length, FILE *file);
+
+BOOLEAN string_to_price(struct price *price_amount, char *price_input);
+
+BOOLEAN name_sort(char first[NAMELEN + 1], char second[NAMELEN + 1]);
 
 #endif

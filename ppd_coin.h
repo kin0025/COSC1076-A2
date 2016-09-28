@@ -55,7 +55,7 @@ struct coin {
 
 #define VALID_DENOMS {5,10,20,50,100,200,500,1000}
 
-BOOLEAN void_balances(struct coin *cash_register[NUM_DENOMS]);
+BOOLEAN void_balances(struct coin cash_register[NUM_DENOMS]);
 
 struct price coins_to_price(int cents);
 

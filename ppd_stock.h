@@ -9,11 +9,13 @@
  * Some codes are adopted here with permission by an anonymous author
  ***********************************************************************/
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <limits.h>
 #include <ctype.h>
 #include "ppd_coin.h"
 #include "ppd_shared.h"
+
 #ifndef PPD_STOCK
 #define PPD_STOCK
 
@@ -65,23 +67,21 @@
  * of inaccuracy due to rounding. In the case of currency this really is
  * not acceptable so we introduce our own type to keep track of currency.
  **/
-struct price
-{
+struct price {
     /**
      * the dollar value for some price
      **/
-    unsigned dollars, 
-             /**
-              * the cents value for some price
-              **/
-             cents;
+    unsigned dollars,
+    /**
+     * the cents value for some price
+     **/
+            cents;
 };
 
 /**
  * data structure to represent a stock item within the system
  **/
-struct ppd_stock
-{
+struct ppd_stock {
     /**
      * the unique id for this item
      **/
@@ -110,23 +110,21 @@ struct ppd_stock
 /**
  * the node that holds the data about an item stored in memory
  **/
-struct ppd_node
-{
+struct ppd_node {
     /* pointer to the data held for the node */
-    struct ppd_stock * data;
+    struct ppd_stock *data;
     /* pointer to the next node in the list */
-    struct ppd_node * next;
+    struct ppd_node *next;
 };
 
 /**
  * the list of products - each link is the list is a @ref ppd_node
  **/
-struct ppd_list
-{
+struct ppd_list {
     /**
      * the beginning of the list
      **/
-    struct ppd_node * head;
+    struct ppd_node *head;
     /**
      * how many nodes are there in the list?
      **/
@@ -137,8 +135,7 @@ struct ppd_list
  * this is the header structure for all the datatypes that is 
  * passed around and manipulated
  **/
-struct ppd_system
-{
+struct ppd_system {
     /**
      * the container for all the money manipulated by the system
      **/
@@ -148,17 +145,17 @@ struct ppd_system
      * the linked list - note that this is a pointer - how does that
      * change what we need to do for initialization of the list?
      **/
-    struct ppd_list * item_list;
+    struct ppd_list *item_list;
 
     /**
      * the name of the coin file - we need this for saving as all menu
      * items only take the one parameter of the ppd_system
      **/
-    const char * coin_file_name;
+    const char *coin_file_name;
     /**
      * the name of the stock file
      **/
-    const char * stock_file_name;
+    const char *stock_file_name;
 
     /* are the coins loaded in from a file ? */
     BOOLEAN coin_from_file;
@@ -167,11 +164,18 @@ struct ppd_system
 
 BOOLEAN init_list(struct ppd_system *system);
 
+BOOLEAN add_stock(struct ppd_stock stock, struct ppd_system *system);
+
+
 int get_largest_description(struct ppd_system *system);
 
 int get_next_id(struct ppd_system *system);
 
-BOOLEAN find_id(struct ppd_node *node, char *id, struct ppd_stock * result);
+BOOLEAN find_id(struct ppd_node *node, char *id, struct ppd_stock *result);
+
+struct ppd_node *create_node(void);
+
+void del_node(struct ppd_node *node);
 
 #endif
 

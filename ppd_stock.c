@@ -9,18 +9,26 @@
  * Some codes are adopted here with permission by an anonymous author
  ***********************************************************************/
 #include "ppd_stock.h"
+#include "ppd_utility.h"
 
 /**
  * @file ppd_stock.c this is the file where you will implement the
  * interface functions for managing the stock list.
  **/
 
-BOOLEAN add_stock(ppd_stock stock, ppd_system *system) {
-   int i;
-   ppd_list *list = NULL;
-   ppd_node *new_node = malloc(sizeof(ppd_node));
-   ppd_node *current = NULL, *last = NULL;
+BOOLEAN add_stock(struct ppd_stock stock, struct ppd_system *system) {
+   int i = 0;
+   struct ppd_list *list = NULL;
+   struct ppd_node *new_node = NULL;
+   struct ppd_node *current = NULL, *last = NULL;
    BOOLEAN stock_added = FALSE;
+
+   new_node = create_node();
+
+   if (new_node == NULL) {
+      printf("Memory Allocation failed, Item was not added.");
+      return FALSE;
+   }
 
    new_node->data = stock;
    new_node->next = NULL;
@@ -44,16 +52,17 @@ BOOLEAN add_stock(ppd_stock stock, ppd_system *system) {
       }
       last = current;
       current = current->next;
+      i++;
    }
 
    return stock_added;
 }
 
 
-BOOLEAN remove_stock(ppd_system *system, char id[IDLEN + 1]) {
+BOOLEAN remove_stock(struct ppd_system *system, char id[IDLEN + 1]) {
    int i;
-   ppd_list *list = NULL;
-   ppd_node *current = NULL, *last = NULL;
+   struct ppd_list *list = NULL;
+   struct ppd_node *current = NULL, *last = NULL;
    BOOLEAN stock_added = FALSE;
 
    new_node->data = stock;
@@ -78,9 +87,9 @@ BOOLEAN remove_stock(ppd_system *system, char id[IDLEN + 1]) {
    return stock_added;
 }
 
-BOOLEAN init_list(ppd_system *system) {
-   ppd_list *list = NULL;
-   ppd_node *node = NULL;
+BOOLEAN init_list(struct ppd_system *system) {
+   struct ppd_list *list = NULL;
+   struct ppd_node *node = NULL;
 
    node->data = NULL;
    node->next = NULL;
@@ -91,9 +100,9 @@ BOOLEAN init_list(ppd_system *system) {
    return TRUE;
 }
 
-int get_largest_description(ppd_system *system) {
+int get_largest_description(struct ppd_system *system) {
    int longest_desc = 0, current_len;
-   ppd_node *current = NULL;
+   struct ppd_node *current = NULL;
 
    current = system->item_list->head;
 
@@ -107,8 +116,8 @@ int get_largest_description(ppd_system *system) {
    return longest_desc;
 }
 
-BOOLEAN find_id(struct ppd_node *node, char *id, struct ppd_stock * result) {
-   if(node == NULL){
+BOOLEAN find_id(struct ppd_node *node, char *id, struct ppd_stock *result) {
+   if (node == NULL) {
       return FALSE;
    }
 
@@ -116,15 +125,15 @@ BOOLEAN find_id(struct ppd_node *node, char *id, struct ppd_stock * result) {
       result = node->data;
       return TRUE;
    }
-   return find_id(node->next, id,result);
+   return find_id(node->next, id, result);
 
 
 }
 
-int get_next_id(ppd_system *system) {
+int get_next_id(struct ppd_system *system) {
    int max_id = 1, i, current_id;
    char id[IDLEN];
-   ppd_node *current = NULL;
+   struct ppd_node *current = NULL;
    current = system->item_list->head;
 
    while (current != NULL) {
@@ -141,4 +150,28 @@ int get_next_id(ppd_system *system) {
    }
 
    return get_next_id(system);
+}
+
+struct ppd_node *create_node (void) {
+   struct ppd_node *returnVal = malloc (sizeof (struct ppd_node));
+   if (returnVal == NULL)
+      return NULL;
+
+
+   returnVal->data = malloc (sizeof (ppd_stock));
+   if (returnVal->data == NULL) {
+      free (returnVal);
+      return NULL;
+   }
+
+
+   return retVal;
+}
+
+void del_node(struct ppd_node *node) {
+
+   if (node != NULL) {
+      free (node->data);
+      free (node);
+   }
 }
