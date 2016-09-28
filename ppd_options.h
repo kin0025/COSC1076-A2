@@ -10,6 +10,10 @@
  ***********************************************************************/
 
 #include "ppd_main.h"
+#include "ppd_utility.h"
+#include "ppd_coin.h"
+#ifndef PPD_OPTIONS
+#define PPD_OPTIONS
 
 /**
  * @file ppd_options.h declares all functions to implement the menu
@@ -79,4 +83,8 @@ BOOLEAN reset_coins(struct ppd_system *);
  **/
 BOOLEAN display_coins(struct ppd_system *);
 
+#define COINLEN 5
+#define CENTSINDOLLAR 100
 
+
+#endif

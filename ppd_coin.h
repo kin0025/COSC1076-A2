@@ -14,6 +14,7 @@
  * system. You should declare function prototypes for managing coins here
  * and implement them in ppd_coin.c
  **/
+#include "ppd_shared.h"
 #ifndef PPD_COIN
 #define PPD_COIN
 #define COIN_DELIM ","
@@ -43,5 +44,12 @@ struct coin
      **/
     unsigned count;
 };
+
+
+#define NUMBERDENOMS 8
+#define VALIDDENOMS {5,10,20,50,100,200,500,1000}
+
+price coins_to_price(int cents);
+BOOLEAN is_valid_denom(int denom);
 
 #endif

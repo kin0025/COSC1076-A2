@@ -22,3 +22,19 @@ BOOLEAN void_balances(struct coin *cash_register[NUM_DENOMS]) {
     }
     return TRUE;
  }
+ BOOLEAN is_valid_denom(int denom){
+    int valid_denoms[NUM_DENOMS] = VALIDDENOMS,i;
+    BOOLEAN is_valid = FALSE;
+    for(i = 0;i<valid_denoms;i++){
+       if(denom[i] == denom){
+          is_valid = TRUE;
+       }
+    }
+    return is_valid;
+ }
+price coins_to_price(int cents){
+   price return_val;
+   return_val.dollars -= (int)cents/CENTSINDOLLAR;
+   return_val.cents -= (int)cents - (return_val.dollars*CENTSINDOLLAR);
+   return return_val;
+}

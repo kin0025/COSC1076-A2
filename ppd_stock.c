@@ -79,7 +79,7 @@ BOOLEAN remove_stock(ppd_system *system, char id[IDLEN + 1]) {
 }
 
 BOOLEAN init_list(ppd_system *system) {
-   ppd_list *list =NULL;
+   ppd_list *list = NULL;
    ppd_node *node = NULL;
 
    node->data = NULL;
@@ -93,7 +93,7 @@ BOOLEAN init_list(ppd_system *system) {
 
 int get_largest_description(ppd_system *system) {
    int longest_desc = 0, current_len;
-   ppd_node *current =NULL;
+   ppd_node *current = NULL;
 
    current = system->item_list->head;
 
@@ -107,10 +107,37 @@ int get_largest_description(ppd_system *system) {
    return longest_desc;
 }
 
-int get_next_id(ppd_system *system){
-   int max_id = 1;
-   ppd_node *current = NULL;
+ppd_stock find_id(ppd_node *node, char *id) {
+   if(node == NULL){
+      return NULL;
+   }
 
+   if (strcmp(node->data->id, id) == 0) {
+      return node->data;
+   }
+   return find_id(node->next, id);
+
+
+}
+
+int get_next_id(ppd_system *system) {
+   int max_id = 1, i, current_id;
+   char id[IDLEN];
+   ppd_node *current = NULL;
+   current = system->item_list->head;
+
+   while (current != NULL) {
+      for (i = 1; i < IDLEN; i++) {
+         id[i - 1] = current->data->id[i];
+      }
+      if (!to_int(id, &current_id)) {
+         fprintf(stderr, "Invalid ID transform");
+      }
+      if (current->data->id > max_id) {
+         max_id = current->data->id;
+      }
+      current = current->next;
+   }
 
    return get_next_id(system);
 }

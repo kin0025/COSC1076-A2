@@ -68,6 +68,7 @@ void system_free(struct ppd_system *);
 int read_int(void);
 
 BOOLEAN to_int(char * input, int * output);
-
+BOOLEAN read_user_input(char *buffer, int length);
+BOOLEAN read_file_input(char *buffer, int length, FILE *file);
 
 #endif

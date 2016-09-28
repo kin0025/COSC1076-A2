@@ -52,6 +52,7 @@ BOOLEAN load_stock(struct ppd_system *system, const char *filename) {
    char *token = NULL, *current_item = NULL, price[COSTLEN + 1], *ptr = NULL;
    ppd_stock stock_item;
    int onhand;
+   BOOLEAN price_function;
 
    data_file = fopen(system->stock_file_name, 'r');
 
@@ -72,11 +73,7 @@ BOOLEAN load_stock(struct ppd_system *system, const char *filename) {
       token = strtok(NULL, DATA_DELIMITER);
 
       price = *token;
-      ptr = strtok(price, PRICEDELIM);
-      stock_item.price.dollars = *ptr;
-      ptr = strtok(NULL, PRICEDELIM);
-      stock_item.price.dollars = *ptr;
-      ptr = NULL;
+price_function = string_to_price(stock_item.price,price);
 
       token = strtok(NULL, DATA_DELIMITER);
 
@@ -223,7 +220,7 @@ int read_int(void) {
    BOOLEAN running = TRUE;
    do {
       /* read the input */
-      fgets(buffer, LINELEN, stdin);
+      fgets(buffer, MAX_INT_LEN, stdin);
       /* check if we overflowed the buffer and fix it if we did*/
       if (buffer[strlen(buffer) - 1] != '\n') {
          read_rest_of_line();
@@ -268,4 +265,13 @@ BOOLEAN to_int(char *input, int *output) {
       error = FALSE;
    }
    return error;
+}
+
+BOOLEAN string_to_price(price *price_amount, char * price_input){
+   char * ptr;
+   ptr = strtok(price_input, PRICEDELIM);
+   price_amount->dollars = *ptr;
+   ptr = strtok(NULL, PRICEDELIM);
+   price_amount->cents = *ptr;
+   ptr = NULL;
 }

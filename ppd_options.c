@@ -28,18 +28,18 @@
  **/
 BOOLEAN display_items(struct ppd_system *system) {
    int desc_len;
-   ppd_node * current;
+   ppd_node *current;
    ppd_stock *item;
 
    printf("Items Menu\n");
    desc_len = get_largest_description(system);
-   printf("%-5s|%*s|%s|%-5s\n","ID",desc_len,"Name",
-          "Available","Price");
+   printf("%-5s|%*s|%s|%-5s\n", "ID", desc_len, "Name",
+          "Available", "Price");
    current = system->item_list->head;
-   while(current != NULL){
+   while (current != NULL) {
       item = current->data;
-      printf("%-5s|%*s|%-9d|\$%-2d\.%-2d\n",item->id,desc_len,item->name,
-             item->on_hand,item->price.dollars,item->price.cents);
+      printf("%-5s|%*s|%-9d|\$%-2d\.%-2d\n", item->id, desc_len, item->name,
+             item->on_hand, item->price.dollars, item->price.cents);
 
       current = current->next;
    }
@@ -58,11 +58,49 @@ BOOLEAN display_items(struct ppd_system *system) {
  * @return true when a purchase succeeds and false when it does not
  **/
 BOOLEAN purchase_item(struct ppd_system *system) {
+   char id[IDLEN + 1];
+   ppd_stock *item = NULL;
+   price amount_due;
+   int cents_paid,cents_due;
    /*
     * Please delete this default return value once this function has
     * been implemented. Please note that it is convention that until
     * a function has been implemented it should return FALSE
     */
+   printf("Purchase Item\n-------------\nEnter the id of the item you wish to"
+                  " purchase:");
+   read_user_input(id, IDLEN);
+   item = &find_id(system->item_list->head, id);
+   while (item == NULL) {
+      printf("ID not found. Please try again:");
+      read_user_input(id, IDLEN);
+      item = &find_id(system->item_list->head, id);
+   }
+   printf("You have selected %s: %s\nThis will cost you $%2d\.%2d", item->name,
+          item->desc, item->price.dollars, item->price.cents);
+   amount_due = item->price;
+   printf("Please type the value of each coin or note in cents\nPress enter "
+                  "on a new empty line to cancel purchase.");
+
+   while (amount_due.cents > 0 && amount_due.dollars > 0) {
+      do {
+         printf("Was not a valid denomination of money\n There is $%d\.%d "
+                        "left", amount_due.dollars, amount_due.cents);
+
+         cents_paid = read_user_input(coin_input, COINLEN);
+      } while (!is_valid_denom(cents_input));
+
+      cents_due = (amount_due.dollars * CENTSINDOLLAR) + amount_due.cents;
+      cents_due -= cents_paid;
+
+      amount_due = coins_to_price(cents_due);
+     //todo ADD COIN LOGIC HERE
+   }
+   cents_due *= -1;
+   amount_due = coins_to_price(cents_due);
+   printf("Here is your %s, and $%d\.%d change",item->name,amount_due
+           .dollars,amount_due.cents);
+//todo COIN LOGIC HERE
    return FALSE;
 }
 
@@ -91,6 +129,9 @@ BOOLEAN add_item(struct ppd_system *system) {
     * been implemented. Please note that it is convention that until
     * a function has been implemented it should return FALSE
     */
+   printf("???");
+
+
    return FALSE;
 }
 

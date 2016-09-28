@@ -17,20 +17,22 @@ MAKEFILE=Makefile
 REPORT=requirement13.txt
 COMPILER = gcc
 
-OBJ=ppd_main.o ppd_menu.o ppd_options.o ppd_utility.o ppd_stock.o ppd_coin.o
+OBJ = $(SOURCES:.c=.o)
 PROG = ppd
 DEBUG = -g
 CFLAGS = -Wall -ansi $(DEBUG)
 
-all: $(OBJ)
-$(CC) $(CFLAGS) -o $(PROG) $(OBJ)
+all: $(PROG)
 
-%.o: $(SOURCES) $(HEADERS)
-$(CC) $(CFLAGS) -c -o $@ $^
-
+$(PROG): $(OBJ)
+	@echo "Compiling"
+	$(CC) $(CFLAGS) -o $(PROG) $(OBJ)
+.c.o:
+	@echo "Compile Obj"
+	$(CC) $(CFLAGS) -c $< -o $@
 clean:
-@echo "Cleaning output"
-rm -f *.o $(PROG)
+	@echo "Cleaning output"
+	rm -f *.o $(PROG)
 
 
 
