@@ -16,6 +16,9 @@
  **/
 #ifndef MENU_H
 #define MENU_H
+struct ppd_system;
+
+
 /**
  * The maximum length of a menu item's text
  **/
@@ -26,6 +29,7 @@
  */
 
 #define NUM_MENU_ITEMS 9
+
 typedef BOOLEAN (*menu_function)(struct ppd_system*);
 /**
  * represents a menu item to be displayed and executed in the program

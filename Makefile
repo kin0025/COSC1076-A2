@@ -22,10 +22,11 @@ PROG = ppd
 DEBUG = -g
 CFLAGS = -Wall -ansi $(DEBUG)
 
+	
 all: $(PROG)
+	@echo "[31m ========================================COMPILING COMPLETE===================================================[0m"
 
 $(PROG): $(OBJ)
-	@echo "Compiling"
 	$(CC) $(CFLAGS) -o $(PROG) $(OBJ)
 .c.o:
 	@echo "Compile Obj"

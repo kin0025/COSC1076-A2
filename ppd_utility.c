@@ -32,7 +32,7 @@ void read_rest_of_line(void) {
  * the data for the system we are creating
  **/
 BOOLEAN system_init(struct ppd_system *system) {
-   void_balances(system->cash_register);
+   void_balances(&(system->cash_register));
    init_list(system);
 
    /*
@@ -49,47 +49,64 @@ BOOLEAN system_init(struct ppd_system *system) {
  **/
 BOOLEAN load_stock(struct ppd_system *system, const char *filename) {
    FILE *data_file = NULL;
-   char *token = NULL, *current_item = NULL, price[COSTLEN + 1], *ptr = NULL;
-   ppd_stock stock_item;
-   int onhand;
+   char *token = NULL, price[COSTLEN + 1], *ptr = NULL;
+   BOOLEAN current_item;
+   struct ppd_stock *stock_item = malloc(sizeof(stock_item));
+   int onhand,i=0;
    BOOLEAN price_function;
 
-   data_file = fopen(system->stock_file_name, 'r');
+   /*Check Output of MALLOC */
+   while (stock_item == NULL && i < 10){
+      stock_item = malloc(sizeof(stock_item));
+      i++;
+   }
+   if(stock_item == NULL){
+      printf("Memory Allocation failed, program will now terminate. Nothing "
+                     "was loaded.");
+      return FALSE;
+   }
+
+   data_file = fopen(system->stock_file_name, "r");
+   if (data_file != NULL) {
+
+      while (current_item = read_file_input(token, FILE_LINE_LEN, data_file)) {
+         token = strtok(current_item, DATA_DELIMITER);
+
+         stock_item->id = *token;
+
+         token = strtok(NULL, DATA_DELIMITER);
+
+         stock_item->name = *token;
+
+         token = strtok(NULL, DATA_DELIMITER);
+
+         stock_item->desc = *token;
+
+         token = strtok(NULL, DATA_DELIMITER);
+
+         price = *token;
+         price_function = string_to_price(stock_item.price, price);
+
+         token = strtok(NULL, DATA_DELIMITER);
+
+         token = strtok(current_item, DATA_DELIMITER);
+
+         /* Check that the integer conversion went successfully */
+         if (to_int(token, &onhand) || onhand < 0) {
+            stock_item = NULL;
+         } else {
+            stock_item.on_hand = onhand;
+         }
 
 
-   while (current_item = read_file_input(token, FILE_LINE_LEN, data_file)) {
-      token = strtok(current_item, DATA_DELIMITER);
-
-      stock_item->id = *token;
-
-      token = strtok(NULL, DATA_DELIMITER);
-
-      stock_item->name = *token;
-
-      token = strtok(NULL, DATA_DELIMITER);
-
-      stock_item->desc = *token;
-
-      token = strtok(NULL, DATA_DELIMITER);
-
-      price = *token;
-price_function = string_to_price(stock_item.price,price);
-
-      token = strtok(NULL, DATA_DELIMITER);
-
-      token = strtok(current_item, DATA_DELIMITER);
-
-      /* Check that the integer conversion went successfully */
-      if (to_int(token, &onhand) || onhand < 0) {
-         stock_item = NULL;
-      } else {
-         stock_item.on_hand = onhand;
+         if (stock_item != NULL) {
+            add_stock(stock_item, system);
+         }
       }
-
-
-      if (stock_item != NULL) {
-         add_stock(stock_item, system);
-      }
+      fclose(data_file);
+   } else {
+      printf("Failed to load data file. Please close any programs that may have "
+                     "it open and try again");
    }
    /*
     * Please delete this default return value once this function has
@@ -124,7 +141,13 @@ BOOLEAN load_coins(struct ppd_system *system, const char *filename) {
  * the data for the system we are creating
  **/
 void system_free(struct ppd_system *system) {
-
+   struct ppd_node *current, *next;
+   system->item_list;
+   while (current != NULL) {
+      next = current->next;
+      free(current);
+      current = next;
+   }
 }
 
 /*Reused Partially from Assignment 1 */
@@ -214,7 +237,7 @@ BOOLEAN name_sort(char first[NAMELEN + 1], char second[NAMELEN + 1]) {
 }
 
 int read_int(void) {
-   char buffer[MAX_INT_LEN+ EXTRACHARS];
+   char buffer[MAX_INT_LEN + EXTRACHARS];
    int output;
    char *ptr = NULL;
    BOOLEAN running = TRUE;
@@ -267,8 +290,8 @@ BOOLEAN to_int(char *input, int *output) {
    return error;
 }
 
-BOOLEAN string_to_price(price *price_amount, char * price_input){
-   char * ptr;
+BOOLEAN string_to_price(struct price *price_amount, char *price_input) {
+   char *ptr;
    ptr = strtok(price_input, PRICEDELIM);
    price_amount->dollars = *ptr;
    ptr = strtok(NULL, PRICEDELIM);

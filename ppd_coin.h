@@ -15,17 +15,25 @@
  * and implement them in ppd_coin.c
  **/
 #include "ppd_shared.h"
+
 #ifndef PPD_COIN
 #define PPD_COIN
 #define COIN_DELIM ","
 struct ppd_system;
+struct price;
+
+
+/**
+ * The number of denominations of currency available in the system
+ **/
+#define NUM_DENOMS 8
+
 /**
  * enumeration representing the various types of currency available in
  * the system. 
  **/
-enum denomination
-{
-    FIVE_CENTS, TEN_CENTS, TWENTY_CENTS, FIFTY_CENTS, ONE_DOLLAR, 
+enum denomination {
+    FIVE_CENTS, TEN_CENTS, TWENTY_CENTS, FIFTY_CENTS, ONE_DOLLAR,
     TWO_DOLLARS, FIVE_DOLLARS, TEN_DOLLARS
 };
 
@@ -33,8 +41,7 @@ enum denomination
  * represents a coin type stored in the cash register. Each demonination
  * will have exactly one of these in the cash register.
  **/
-struct coin
-{
+struct coin {
     /**
      * the denomination type
      **/
@@ -46,10 +53,12 @@ struct coin
 };
 
 
-#define NUMBERDENOMS 8
-#define VALIDDENOMS {5,10,20,50,100,200,500,1000}
+#define VALID_DENOMS {5,10,20,50,100,200,500,1000}
 
-price coins_to_price(int cents);
+BOOLEAN void_balances(struct coin *cash_register[NUM_DENOMS]);
+
+struct price coins_to_price(int cents);
+
 BOOLEAN is_valid_denom(int denom);
 
 #endif

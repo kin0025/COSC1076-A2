@@ -10,8 +10,7 @@
  ***********************************************************************/
 
 #include "ppd_main.h"
-#include "ppd_utility.h"
-#include "ppd_coin.h"
+
 #ifndef PPD_OPTIONS
 #define PPD_OPTIONS
 

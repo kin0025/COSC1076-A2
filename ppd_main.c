@@ -13,6 +13,9 @@
 #include "ppd_menu.h"
 #include "ppd_options.h"
 #include "ppd_utility.h"
+#include "ppd_stock.h"
+#include "ppd_coin.h"
+#include "ppd_shared.h"
 
 /**
  * @file ppd_main.c contains the main function implementation and any 
@@ -25,20 +28,20 @@
  * should simply be calling other functions to get the job done.
  **/
 int main(int argc, char **argv) {
-   BOOLEAN keep_running = TRUE;
+   BOOLEAN keep_running = TRUE, success;
    char *data_name = NULL, *coin_name = NULL;
    FILE *data_file = NULL, *coin_file = NULL;
-   menu_function *menu_choice;
+   menu_function menu_choice;
    struct menu_item menu[NUM_MENU_ITEMS];
-
+   struct ppd_system system;
 
    /* validate command line arguments */
    switch (argc) {
       case 3:
          coin_name = argv[2];
-         coin_file = fopen(coin_name, 'r');
+         coin_file = fopen(coin_name, "r");
          if (coin_file == NULL) {
-            fprintf(stderr, "Unable to open file &s", data_name);
+            fprintf(stderr, "Unable to open file");
             printf("Coin file failed to load");
             return EXIT_FAILURE;
          }
@@ -46,9 +49,9 @@ int main(int argc, char **argv) {
          printf("We apologise, but this function is not implemented yet.");
       case 2:
          data_name = argv[1];
-         data_file = fopen(data_name, 'r');
+         data_file = fopen(data_name, "r");
          if (data_file == NULL) {
-            fprintf(stderr, "Unable to open file", data_name);
+            fprintf(stderr, "Unable to open file");
             printf("Data file failed to load");
             return EXIT_FAILURE;
          }
@@ -62,19 +65,23 @@ int main(int argc, char **argv) {
 
 
    /* represents the data structures to manage the system */
-   struct ppd_system system;
+
    /* init the system */
-   system_init(system);
+   system_init(&system);
    system.coin_file_name = coin_name;
    system.stock_file_name = data_name;
    /* load data */
-   load_stock(system, data_name);
-
+   success = load_stock(&system, data_name);
+   if (!success) {
+      return EXIT_FAILURE;
+   }
 
    /*load_coins(system,); */
    system.coin_from_file = FALSE;
-   load_coins(system, coin_name);
-
+   success = load_coins(&system, coin_name);
+   if (!success) {
+      return EXIT_FAILURE;
+   }
    /* test if everything has been initialised correctly */
 
    /* initialise the menu system */
@@ -82,7 +89,7 @@ int main(int argc, char **argv) {
    /* loop, asking for options from the menu */
    while (keep_running) {
       menu_choice = get_menu_choice(menu);
-      keep_running = **menu_choice(system);
+      keep_running = menu_choice(&system);
       /* run each option selected */
 
       /* until the user quits */
@@ -90,8 +97,8 @@ int main(int argc, char **argv) {
    /* make sure you always free all memory and close all files
     * before you exit the program
     */
-   save_system(system);
-   system_free(system);
+   save_system(&system);
+   system_free(&system);
 
    return EXIT_SUCCESS;
 }

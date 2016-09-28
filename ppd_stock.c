@@ -107,15 +107,16 @@ int get_largest_description(ppd_system *system) {
    return longest_desc;
 }
 
-ppd_stock find_id(ppd_node *node, char *id) {
+BOOLEAN find_id(struct ppd_node *node, char *id, struct ppd_stock * result) {
    if(node == NULL){
-      return NULL;
+      return FALSE;
    }
 
    if (strcmp(node->data->id, id) == 0) {
-      return node->data;
+      result = node->data;
+      return TRUE;
    }
-   return find_id(node->next, id);
+   return find_id(node->next, id,result);
 
 
 }

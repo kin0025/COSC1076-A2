@@ -11,6 +11,7 @@
 
 #include "ppd_menu.h"
 #include "ppd_options.h"
+#include "ppd_utility.h"
 /**
  * @file ppd_menu.c handles the initialised and management of the menu
  * array
@@ -22,36 +23,36 @@
 void init_menu(struct menu_item *menu) {
    int i;
    for (i = 0; i < NUM_MENU_ITEMS; i++) {
-      menu[i]->function = NULL;
-      menu[i]->name = NULL;
+      menu[i].function = NULL;
    }
-   menu[0].name = "Display Items";
-   menu[0].function = *display_items((*ppd_system));
+   if (NUM_MENU_ITEMS >= 9) {
+      strcpy(menu[0].name, "Display Items");
+      menu[0].function = &display_items;
 
-   menu[1].name = "Purchase Items";
-   menu[1].function = *purchase_item((*ppd_system));
+      strcpy(menu[1].name, "Purchase Items");
+      menu[1].function = &purchase_item;
 
-   menu[2].name = "Save and Exit";
-   menu[2].function = *save_system((*ppd_system));
+      strcpy(menu[2].name, "Save and Exit");
+      menu[2].function = &save_system;
 
-   menu[3].name = "Add Item";
-   menu[3].function = *add_item((*ppd_system));
+      strcpy(menu[3].name, "Add Item");
+      menu[3].function = &add_item;
 
-   menu[4].name = "Remove Item";
-   menu[4].function = *remove_item((*ppd_system));
+      strcpy(menu[4].name, "Remove Item");
+      menu[4].function = &remove_item;
 
-   menu[5].name = "Display Coins";
-   menu[5].function = *display_coins((*ppd_system));
+      strcpy(menu[5].name, "Display Coins");
+      menu[5].function = &display_coins;
 
-   menu[6].name = "Reset Stock";
-   menu[6].function = *reset_stock((*ppd_system));
+      strcpy(menu[6].name, "Reset Stock");
+      menu[6].function = &reset_stock;
 
-   menu[7].name = "Reset Coins";
-   menu[7].function = *reset_coins((*ppd_system));
+      strcpy(menu[7].name, "Reset Coins");
+      menu[7].function = &reset_coins;
 
-   menu[8].name = "Abort Program";
-   menu[8].function = *save_system((*ppd_system));
-
+      strcpy(menu[8].name, "Abort Program");
+      menu[8].function = &save_system;
+   }
 }
 
 /**
@@ -59,18 +60,18 @@ void init_menu(struct menu_item *menu) {
  * selection
  **/
 menu_function get_menu_choice(struct menu_item *menu) {
-   int i,choice;
+   int i, choice;
    printf("Main Menu:\n");
-   for(i = 0;i < NUM_MENU_ITEMS;i++){
-      if(i == 2){
+   for (i = 0; i < NUM_MENU_ITEMS; i++) {
+      if (i == 2) {
          printf("Administrator Menu:\n");
       }
-      printf("%d\. %s\n",i+1,menu[i].name);
+      printf("%d. %s\n", i + 1, menu[i].name);
 
    }
-   do{
+   do {
       choice = read_int();
-   }while(0<choice<=NUM_MENU_ITEMS);
+   } while (0 < choice && choice <= NUM_MENU_ITEMS);
 
-   return menu[choice-1].function;
+   return menu[choice - 1].function;
 }

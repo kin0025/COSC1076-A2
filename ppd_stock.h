@@ -8,16 +8,15 @@
  * Start up code provided by Paul Miller
  * Some codes are adopted here with permission by an anonymous author
  ***********************************************************************/
-
-#ifndef PPD_STOCK
-#define PPD_STOCK
 #include <stdio.h>
 #include <string.h>
 #include <limits.h>
 #include <ctype.h>
 #include "ppd_coin.h"
 #include "ppd_shared.h"
-#include "ppd_utility.h"
+#ifndef PPD_STOCK
+#define PPD_STOCK
+
 /**
  * @file ppd_stock.h this file defines the data structures required to 
  * manage the stock list. You should add here the function prototypes for
@@ -59,10 +58,6 @@
  **/
 #define DEFAULT_STOCK_LEVEL 20
 
-/**
- * The number of denominations of currency available in the system 
- **/
-#define NUM_DENOMS 8
 
 /**
  * a structure to represent a price. One of the problems with the floating
@@ -170,10 +165,13 @@ struct ppd_system
 };
 
 
-BOOLEAN init_list(ppd_system *system);
-int get_largest_description(ppd_system *system);
-int get_next_id(ppd_system *system);
-ppd_stock find_id(ppd_node *node, char *id);
+BOOLEAN init_list(struct ppd_system *system);
+
+int get_largest_description(struct ppd_system *system);
+
+int get_next_id(struct ppd_system *system);
+
+BOOLEAN find_id(struct ppd_node *node, char *id, struct ppd_stock * result);
 
 #endif
 
