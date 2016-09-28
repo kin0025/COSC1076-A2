@@ -17,10 +17,11 @@
  **/
 
 BOOLEAN add_stock(struct ppd_stock stock, struct ppd_system *system) {
-   int i = 0;
+   int i = 0,x=0;
    struct ppd_node *new_node = NULL;
    struct ppd_node *current = NULL, *last = NULL;
    BOOLEAN stock_added = FALSE;
+
 
    new_node = create_node();
 
@@ -29,8 +30,10 @@ BOOLEAN add_stock(struct ppd_stock stock, struct ppd_system *system) {
       return FALSE;
    }
 
-   new_node->data = &stock;
+   *new_node->data = stock;
    new_node->next = NULL;
+
+
 
    current = system->item_list->head;
 
@@ -38,8 +41,10 @@ BOOLEAN add_stock(struct ppd_stock stock, struct ppd_system *system) {
       system->item_list->head = new_node;
       stock_added = TRUE;
    }
+/*FIXME*/
+   while (!stock_added && current->next != NULL) {
+      printf("%d\n",x); x++;
 
-   while (current->next != NULL && !stock_added) {
       if (name_sort(stock.name, current->data->name)) {
          if (i != 0) {
             last->next = new_node;
@@ -84,13 +89,9 @@ BOOLEAN remove_stock(struct ppd_system *system, char id[IDLEN + 1]) {
 }
 
 BOOLEAN init_list(struct ppd_system *system) {
-   struct ppd_list *list = NULL;
-   struct ppd_node *node = NULL;
-
-   node->data = NULL;
-   node->next = NULL;
+   struct ppd_list *list = malloc(sizeof(struct ppd_list));
    list->count = 0;
-   list->head = node;
+   list->head = NULL;
 
    system->item_list = list;
    return TRUE;
@@ -155,7 +156,6 @@ struct ppd_node *create_node(void) {
    struct ppd_node *returnVal = malloc(sizeof(struct ppd_node));
    if (returnVal == NULL)
       return NULL;
-
 
    returnVal->data = malloc(sizeof(struct ppd_stock));
    if (returnVal->data == NULL) {

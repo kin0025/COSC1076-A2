@@ -28,66 +28,78 @@
  * should simply be calling other functions to get the job done.
  **/
 int main(int argc, char **argv) {
-   BOOLEAN keep_running = TRUE, success;
+   BOOLEAN keep_running = TRUE, success = TRUE;
    char *data_name = NULL, *coin_name = NULL;
    FILE *data_file = NULL, *coin_file = NULL;
    menu_function menu_choice;
    struct menu_item menu[NUM_MENU_ITEMS];
    struct ppd_system system;
 
+   system.coin_from_file = FALSE;
+   system.coin_file_name = NULL;
+   system.stock_file_name = NULL;
+
    /* validate command line arguments */
    switch (argc) {
       case 3:
+         printf("VALIDATING COIN\n");
          coin_name = argv[2];
          coin_file = fopen(coin_name, "r");
          if (coin_file == NULL) {
-            fprintf(stderr, "Unable to open file");
-            printf("Coin file failed to load");
+            fprintf(stderr, "Unable to open file\n");
+            printf("Coin file failed to load\n");
             return EXIT_FAILURE;
          }
          fclose(coin_file);
-         printf("We apologise, but this function is not implemented yet.");
+         printf("We apologise, but this function is not implemented yet.\n");
+         system.coin_file_name = coin_name;
+         system.coin_from_file = TRUE;
       case 2:
          data_name = argv[1];
          data_file = fopen(data_name, "r");
+
          if (data_file == NULL) {
-            fprintf(stderr, "Unable to open file");
-            printf("Data file failed to load");
+            fprintf(stderr, "Unable to open file\n");
+            printf("Data file failed to load\n");
             return EXIT_FAILURE;
          }
+
+         system.stock_file_name = data_name;
          fclose(data_file);
+
          break;
       default:
          printf("You need to provide one or two arguments to the "
-                        "location of the files to load.");
+                        "location of the files to load.\n");
+         return EXIT_FAILURE;
 
    }
 
 
-   /* represents the data structures to manage the system */
 
    /* init the system */
    system_init(&system);
-   system.coin_file_name = coin_name;
-   system.stock_file_name = data_name;
+
    /* load data */
+   printf("Test 1\n");
    success = load_stock(&system, data_name);
    if (!success) {
       return EXIT_FAILURE;
    }
 
    /*load_coins(system,); */
-   system.coin_from_file = FALSE;
    success = load_coins(&system, coin_name);
    if (!success) {
       return EXIT_FAILURE;
    }
    /* test if everything has been initialised correctly */
-
+/* TODO:ADD INIT STUFF */
    /* initialise the menu system */
+   printf("MENU SYSTEM");
    init_menu(menu);
    /* loop, asking for options from the menu */
    while (keep_running) {
+      printf("MENU STUFF");
       menu_choice = get_menu_choice(menu);
       keep_running = menu_choice(&system);
       /* run each option selected */

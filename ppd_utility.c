@@ -33,8 +33,9 @@ void read_rest_of_line(void) {
  **/
 BOOLEAN system_init(struct ppd_system *system) {
    void_balances(system->cash_register);
+   printf("Initialising List\n");
    init_list(system);
-
+   printf("LISTDONE");
    /*
      * Please delete this default return value once this function has 
      * been implemented. Please note that it is convention that until
@@ -50,55 +51,67 @@ BOOLEAN system_init(struct ppd_system *system) {
 BOOLEAN load_stock(struct ppd_system *system, const char *filename) {
    FILE *data_file = NULL;
    char *token = NULL, *price, current_line[FILE_LINE_LEN + EXTRACHARS];
-   BOOLEAN current_item;
    struct ppd_stock stock_item;
    int onhand;
-   BOOLEAN error_encountered = FALSE;
+   BOOLEAN no_error = TRUE;
 
 
    data_file = fopen(system->stock_file_name, "r");
-   if (data_file != NULL) {
 
-      while ((current_item = read_file_input(current_line, FILE_LINE_LEN,
-                                             data_file))) {
-         token = strtok(current_line, DATA_DELIMITER);
-
-         strcpy(stock_item.id, token);
-
-         token = strtok(NULL, DATA_DELIMITER);
-
-         strcpy(stock_item.name, token);
-
-         token = strtok(NULL, DATA_DELIMITER);
-
-         strcpy(stock_item.desc, token);
-
-         token = strtok(NULL, DATA_DELIMITER);
-
-         price = token;
-         error_encountered = string_to_price(&(stock_item.price), price);
-
-         token = strtok(NULL, DATA_DELIMITER);
-
-         /* Check that the integer conversion went successfully */
-         if (to_int(token, &onhand) || onhand < 0) {
-
-            error_encountered = TRUE;
-         } else {
-            stock_item.on_hand = onhand;
-         }
-
-
-         if (!error_encountered) {
-            add_stock(stock_item, system);
-         }
-         error_encountered = FALSE;
-      }
-      fclose(data_file);
-   } else {
+   if (data_file == NULL) {
       printf("Failed to load data file. Please close any programs that may have "
                      "it open and try again");
+      return FALSE;
    }
+   
+   while (read_file_input(current_line, FILE_LINE_LEN, data_file)) {
+      printf("%s", current_line);
+      token = strtok(current_line, DATA_DELIMITER);
+
+      strcpy(stock_item.id, token);
+
+      token = strtok(NULL, DATA_DELIMITER);
+
+      strcpy(stock_item.name, token);
+
+      token = strtok(NULL, DATA_DELIMITER);
+
+      strcpy(stock_item.desc, token);
+
+      token = strtok(NULL, DATA_DELIMITER);
+
+      price = token;
+
+      no_error = string_to_price(&(stock_item.price), price);
+
+      token = strtok(token, DATA_DELIMITER);
+
+      no_error = to_int(token, &onhand);
+      /* Check that the integer conversion went successfully */
+      if (onhand < 0) {
+         no_error = FALSE;
+      } else {
+         stock_item.on_hand = onhand;
+      }
+      printf("%s\n", stock_item.id);
+      printf("%s\n", stock_item.desc);
+      printf("%s\n", stock_item.name);
+      printf("%d\n", stock_item.on_hand);
+      printf("%d.%d\n----------\n", stock_item.price.dollars,
+             stock_item.price
+                     .cents);
+      if (no_error) {
+         printf("Adding Item\n");
+         add_stock(stock_item, system);
+         printf("ADD DONE\n");
+      }
+      no_error = TRUE;
+
+   }
+   printf("ADD DONE");
+
+   fclose(data_file);
+
    /*
     * Please delete this default return value once this function has
     * been implemented. Please note that it is convention that until
@@ -141,6 +154,7 @@ void system_free(struct ppd_system *system) {
       del_node(current);
       current = next;
    }
+   free(system->item_list);
 }
 
 /*Reused Partially from Assignment 1 */
@@ -262,38 +276,48 @@ int read_int(void) {
 }
 
 BOOLEAN to_int(char *input, int *output) {
-   char *ptr = NULL, buffer[MAX_INT_LEN + EXTRACHARS];
-   BOOLEAN error = FALSE;
+   char *ptr;
+   BOOLEAN no_error = TRUE;
    /* Convert the remaining to integer */
-   *output = (int) strtol(buffer, &ptr, BASE);
+   *output = (int) strtol(input, &ptr, BASE);
 
    /* Check that the integer conversion went successfully */
-   if (*output == -1 || ptr == buffer) {
-      printf("The input was not a parsable number.\n");
-      error = FALSE;
+   if (*output == -1 || ptr == input) {
+      printf("The input was not a parsable number: %s\n", input);
+      no_error = FALSE;
    } else if (strlen(ptr) != 0) {
       printf("There was more than just a number entered, please try "
                      "again.\n");
-      error = FALSE;
+      no_error = FALSE;
    }
-   return error;
+   return no_error;
 }
 
 BOOLEAN string_to_price(struct price *price_amount, char *price_input) {
    char *ptr;
+   int amount;
+   BOOLEAN int_success;
+
    ptr = strtok(price_input, PRICEDELIM);
-   if (ptr != NULL) {
-      price_amount->dollars = *ptr;
+   int_success = to_int(ptr, &amount);
+   if (ptr != NULL && int_success) {
+      price_amount->dollars = amount;
    } else {
+      printf("Failed");
       return FALSE;
    }
    ptr = strtok(NULL, PRICEDELIM);
-   if (ptr != NULL) {
-      price_amount->cents = *ptr;
+   int_success = to_int(ptr, &amount);
+
+   if (ptr != NULL && int_success) {
+      price_amount->cents = amount;
    } else {
       return FALSE;
    }
+
    ptr = strtok(NULL, PRICEDELIM);
+
+
    if (ptr == NULL) {
       return TRUE;
    } else {
