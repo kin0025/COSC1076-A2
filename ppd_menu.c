@@ -69,9 +69,13 @@ menu_function get_menu_choice(struct menu_item *menu) {
       printf("%d. %s\n", i + 1, menu[i].name);
 
    }
+
+   choice = read_int(&choice);
    do {
+      printf("Input must be between 1 and %d\n",NUM_MENU_ITEMS);
+      printf("Input: %d",choice);
       choice = read_int();
-   } while (0 < choice && choice <= NUM_MENU_ITEMS);
+   } while (choice > 0 && choice <= NUM_MENU_ITEMS);
 
    return menu[choice - 1].function;
 }

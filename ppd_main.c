@@ -42,7 +42,6 @@ int main(int argc, char **argv) {
    /* validate command line arguments */
    switch (argc) {
       case 3:
-         printf("VALIDATING COIN\n");
          coin_name = argv[2];
          coin_file = fopen(coin_name, "r");
          if (coin_file == NULL) {
@@ -78,34 +77,34 @@ int main(int argc, char **argv) {
 
 
    /* init the system */
-   system_init(&system);
-
-   /* load data */
-   printf("Test 1\n");
-   success = load_stock(&system, data_name);
+   success = system_init(&system);
    if (!success) {
       return EXIT_FAILURE;
    }
+   /* load data */
+   success = load_stock(&system, data_name);
 
+   if (!success) {
+      return EXIT_FAILURE;
+   }
    /*load_coins(system,); */
+
    success = load_coins(&system, coin_name);
+
    if (!success) {
       return EXIT_FAILURE;
    }
    /* test if everything has been initialised correctly */
 /* TODO:ADD INIT STUFF */
    /* initialise the menu system */
-   printf("MENU SYSTEM");
    init_menu(menu);
    /* loop, asking for options from the menu */
-   while (keep_running) {
-      printf("MENU STUFF");
+   do {
       menu_choice = get_menu_choice(menu);
-      keep_running = menu_choice(&system);
       /* run each option selected */
-
+      keep_running = menu_choice(&system);
       /* until the user quits */
-   }
+   }while (keep_running);
    /* make sure you always free all memory and close all files
     * before you exit the program
     */

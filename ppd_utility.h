@@ -67,7 +67,7 @@ BOOLEAN load_coins(struct ppd_system *, const char *);
  **/
 void system_free(struct ppd_system *);
 
-int read_int(void);
+BOOLEAN read_int(int* output);
 
 BOOLEAN to_int(char *input, int *output);
 

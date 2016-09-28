@@ -26,22 +26,28 @@ void read_rest_of_line(void) {
    /* reset error flags on stdin */
    clearerr(stdin);
 }
-
+void read_rest_of_file_line(FILE * file) {
+   int ch;
+   /* keep retrieving characters from stdin until we
+    * are at the end of the buffer
+    */
+   while (ch = getc(file), ch != '\n' && ch != EOF);
+   /* reset error flags on stdin */
+   clearerr(file);
+}
 /**
  * @param system a pointer to a @ref ppd_system struct that holds all 
  * the data for the system we are creating
  **/
 BOOLEAN system_init(struct ppd_system *system) {
    void_balances(system->cash_register);
-   printf("Initialising List\n");
    init_list(system);
-   printf("LISTDONE");
    /*
      * Please delete this default return value once this function has 
      * been implemented. Please note that it is convention that until
      * a function has been implemented it should return FALSE
      */
-   return FALSE;
+   return TRUE;
 }
 
 /**
@@ -63,9 +69,9 @@ BOOLEAN load_stock(struct ppd_system *system, const char *filename) {
                      "it open and try again");
       return FALSE;
    }
-   
+
    while (read_file_input(current_line, FILE_LINE_LEN, data_file)) {
-      printf("%s", current_line);
+
       token = strtok(current_line, DATA_DELIMITER);
 
       strcpy(stock_item.id, token);
@@ -93,22 +99,19 @@ BOOLEAN load_stock(struct ppd_system *system, const char *filename) {
       } else {
          stock_item.on_hand = onhand;
       }
-      printf("%s\n", stock_item.id);
+     /* printf("%s\n", stock_item.id);
       printf("%s\n", stock_item.desc);
       printf("%s\n", stock_item.name);
       printf("%d\n", stock_item.on_hand);
       printf("%d.%d\n----------\n", stock_item.price.dollars,
              stock_item.price
-                     .cents);
+                     .cents);*/
       if (no_error) {
-         printf("Adding Item\n");
          add_stock(stock_item, system);
-         printf("ADD DONE\n");
       }
       no_error = TRUE;
 
    }
-   printf("ADD DONE");
 
    fclose(data_file);
 
@@ -128,17 +131,19 @@ BOOLEAN load_coins(struct ppd_system *system, const char *filename) {
    FILE *coin_file;
    if (system->coin_from_file == TRUE) {
       coin_file = fopen(system->coin_file_name, "r");
+      fclose(coin_file);
+
 /*todo: Add coin loading properly */
    } else {
       void_balances(system->cash_register);
+      return TRUE;
    }
-   fclose(coin_file);
    /*
     * Please delete this default return value once this function has
     * been implemented. Please note that it is convention that until
     * a function has been implemented it should return FALSE
     */
-   return FALSE;
+   return TRUE;
 
 }
 
@@ -162,6 +167,7 @@ BOOLEAN read_file_input(char *buffer, int length, FILE *file) {
    BOOLEAN overflow = FALSE;
    do {
       /* Check for EOF input and return false, receive input */
+
       if (fgets(buffer, length + 1, file) == NULL) {
          return FALSE;
       }
@@ -170,14 +176,14 @@ BOOLEAN read_file_input(char *buffer, int length, FILE *file) {
       if (buffer[strlen(buffer) - 1] != '\n') {
          overflow = TRUE;
          /* Clear the overflow and prompt the user for input again */
-         read_rest_of_line();
+         read_rest_of_file_line(file);
          printf("One of your lines in the file is longer then %d characters, "
-                        "and has been "
-                        "discarded.\n", length);
+                        "and has been discarded.\n", length);
       } else {
          overflow = FALSE;
       }
    } while (overflow);
+
    /* Remove the EOL character from string */
    buffer[strlen(buffer) - 1] = NULL_TERMINATOR;
    /*If there was only an EOL character return false */
@@ -239,14 +245,15 @@ BOOLEAN name_sort(char first[NAMELEN + 1], char second[NAMELEN + 1]) {
 
 }
 
-int read_int(void) {
+BOOLEAN read_int(int* output) {
    char buffer[MAX_INT_LEN + EXTRACHARS];
-   int output;
    char *ptr = NULL;
    BOOLEAN running = TRUE;
    do {
       /* read the input */
-      fgets(buffer, MAX_INT_LEN, stdin);
+      if (fgets(buffer, MAX_INT_LEN + EXTRACHARS, stdin) == NULL) {
+         return FALSE;
+      }
       /* check if we overflowed the buffer and fix it if we did*/
       if (buffer[strlen(buffer) - 1] != '\n') {
          read_rest_of_line();
@@ -258,10 +265,10 @@ int read_int(void) {
       buffer[strlen(buffer) - 1] = NULL_TERMINATOR;
 
       /* Convert the remaining to integer */
-      output = (int) strtol(buffer, &ptr, BASE);
+      *output = (int) strtol(buffer, &ptr, BASE);
 
       /* Check that the integer conversion went successfully */
-      if (output == -1 || ptr == buffer) {
+      if (*output == -1 || ptr == buffer) {
          printf("The input was not a parsable number.\n");
          running = TRUE;
       } else if (strlen(ptr) != 0) {
@@ -272,7 +279,7 @@ int read_int(void) {
          running = FALSE;
       }
    } while (running);
-   return output;
+   return TRUE;
 }
 
 BOOLEAN to_int(char *input, int *output) {
