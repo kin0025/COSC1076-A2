@@ -322,3 +322,11 @@ BOOLEAN string_to_price(struct price *price_amount, char *price_input) {
       return FALSE;
    }
 }
+
+BOOLEAN price_to_int(struct price *price, int *cents) {
+   if (price == NULL) {
+      return FALSE;
+   }
+   *cents = price->cents + (price->dollars * CENTS_IN_DOLLAR);
+   return TRUE;
+}

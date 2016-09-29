@@ -37,7 +37,55 @@ BOOLEAN is_valid_denom(int denom) {
 
 struct price coins_to_price(int cents) {
    struct price return_val;
-   return_val.dollars -= (int) cents / CENTS_IN_DOLLAR;
-   return_val.cents -= (int) cents - (return_val.dollars * CENTS_IN_DOLLAR);
+   return_val.dollars = (int) cents / CENTS_IN_DOLLAR;
+   return_val.cents = (int) cents - (return_val.dollars * CENTS_IN_DOLLAR);
    return return_val;
+}
+
+BOOLEAN remove_coin(struct ppd_system *system, int value) {
+   int valid_denoms[NUM_DENOMS] = VALID_DENOMS, i;
+   enum denomination denom = -1;
+   for (i = 0; i < NUM_DENOMS; i++) {
+      if (valid_denoms[i] == value) {
+         denom = i;
+      }
+   }
+   if (denom != -1) {
+      for (i = 0; i < NUM_DENOMS; i++) {
+         if (system->cash_register[i].denom == denom &&
+             system->cash_register[i].count > 0) {
+            system->cash_register[i].count--;
+            return TRUE;
+         } else if (system->cash_register[i].denom == denom &&
+                    system->cash_register[i].count == 0) {
+            printf("No change left to give\n");
+            return FALSE;
+         }
+      }
+   }
+   printf("Invalid denomination\n");
+   return FALSE;
+
+}
+
+BOOLEAN add_coin(struct ppd_system *system, int value) {
+   int valid_denoms[NUM_DENOMS] = VALID_DENOMS, i;
+   enum denomination denom = -1;
+
+   for (i = 0; i < NUM_DENOMS; i++) {
+      if (valid_denoms[i] == value) {
+         denom = i;
+      }
+   }
+   if (denom != -1) {
+      for (i = 0; i < NUM_DENOMS; i++) {
+         if (system->cash_register[i].denom == denom) {
+            system->cash_register[i].count++;
+            return TRUE;
+         }
+      }
+   }
+   printf("Register does not take that type of money\n");
+   return FALSE;
+
 }

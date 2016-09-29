@@ -77,4 +77,5 @@ BOOLEAN read_file_input(char *buffer, int length, FILE *file);
 
 BOOLEAN string_to_price(struct price *price_amount, char *price_input);
 
+BOOLEAN price_to_int(struct price *price, int *cents);
 #endif

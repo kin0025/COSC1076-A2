@@ -56,11 +56,16 @@ struct coin {
 };
 
 
-
 BOOLEAN void_balances(struct coin cash_register[NUM_DENOMS]);
 
 struct price coins_to_price(int cents);
 
 BOOLEAN is_valid_denom(int denom);
+
+
+BOOLEAN add_coin(struct ppd_system *system, int value);
+
+BOOLEAN remove_coin(struct ppd_system *system, int value);
+
 
 #endif

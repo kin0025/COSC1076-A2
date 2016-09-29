@@ -33,7 +33,7 @@ void init_menu(struct menu_item *menu) {
       menu[1].function = &purchase_item;
 
       strcpy(menu[2].name, "Save and Exit");
-      menu[2].function = &save_system;
+      menu[2].function = &save_exit;
 
       strcpy(menu[3].name, "Add Item");
       menu[3].function = &add_item;
@@ -51,7 +51,7 @@ void init_menu(struct menu_item *menu) {
       menu[7].function = &reset_coins;
 
       strcpy(menu[8].name, "Abort Program");
-      menu[8].function = &save_system;
+      menu[8].function = NULL;
    }
 }
 
@@ -77,10 +77,15 @@ menu_function get_menu_choice(struct menu_item *menu) {
       } else {
          printf("Input must be between 1 and %d\n", NUM_MENU_ITEMS);
       }
-      quit = read_int(&choice);
-      if (!quit) {
-         return FALSE;
-      }
+      do {
+         quit = read_int(&choice);
+         /*if (!quit) {
+            return NULL;
+         }*/
+         if (!quit) {
+            printf("Invalid Input\n");
+         }
+      } while (!quit);
    } while (!(choice > 0 && choice <= NUM_MENU_ITEMS));
    return menu[choice - 1].function;
 }

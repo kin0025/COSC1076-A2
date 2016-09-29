@@ -82,6 +82,9 @@ BOOLEAN reset_coins(struct ppd_system *);
  **/
 BOOLEAN display_coins(struct ppd_system *);
 
+BOOLEAN save_exit(struct ppd_system *system);
+
+
 #define COINLEN 5
 
 #define YESNOLEN 1

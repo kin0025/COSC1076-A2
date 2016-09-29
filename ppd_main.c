@@ -102,14 +102,25 @@ int main(int argc, char **argv) {
    do {
       menu_choice = get_menu_choice(menu);
       /* run each option selected */
+
+      if (menu_choice == NULL) {
+         break;
+      }
+
       keep_running = menu_choice(&system);
+
+      if (menu_choice == &save_exit) {
+         break;
+      }
       printf("\n\n\n\n\n\n\n=======================\n");
       /* until the user quits */
-   }while (keep_running);
+      if (!keep_running) {
+         save_system(&system);
+      }
+   } while (keep_running);
    /* make sure you always free all memory and close all files
     * before you exit the program
     */
-   save_system(&system);
    system_free(&system);
 
    return EXIT_SUCCESS;

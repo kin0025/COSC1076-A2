@@ -70,14 +70,10 @@ BOOLEAN display_items(struct ppd_system *system) {
 BOOLEAN purchase_item(struct ppd_system *system) {
    char id[IDLEN + 1];
    struct ppd_stock *item = NULL;
-   struct price amount_due;
    int cents_paid, cents_due;
-   BOOLEAN no_quit = TRUE;
-   /*
-    * Please delete this default return value once this function has
-    * been implemented. Please note that it is convention that until
-    * a function has been implemented it should return FALSE
-    */
+   BOOLEAN no_quit = TRUE, valid_denom;
+   struct price amount;
+
    printf("Purchase Item\n-------------\nEnter the id of the item you wish to"
                   " purchase:");
    no_quit = read_user_input(id, IDLEN);
@@ -93,33 +89,50 @@ BOOLEAN purchase_item(struct ppd_system *system) {
       }
       item = find_id(system->item_list->head, id)->data;
    }
-   printf("You have selected %s: %s\nThis will cost you $%2d.%2d\n", item->name,
+   if (item->on_hand == 0) {
+      printf("The item you have selected is out of stock.\n");
+      return TRUE;
+   }
+   printf("You have selected %s: %s\nThis will cost you $%2d.%-2.2d\n",
+          item->name,
           item->desc, item->price.dollars, item->price.cents);
-   amount_due = item->price;
+
    printf("Please type the value of each coin or note in cents or press %s "
                   "on a new empty line to cancel purchase.\n", ENTER_COLOUR);
 
-   while (amount_due.cents > 0 && amount_due.dollars > 0) {
-      do {
-         /*printf("Was not a valid denomination of money\n There is $%d.%d "
-                        "left\n", amount_due.dollars, amount_due.cents);*/
+   no_quit = price_to_int(&item->price, &cents_due);
+   if (!no_quit) {
+      printf("Invalid Price. Returning to menu\n");
+      return FALSE;
+   }
 
+   while (cents_due > 0) {
+      do {
+         amount = coins_to_price(cents_due);
+         printf("There is $%d.%2.2d left: ", amount.dollars, amount.cents);
          no_quit = read_int(&cents_paid);
-         if (!no_quit) {
+         if (!no_quit) {/*TODO COIN LOGIC HERE*/
             return TRUE;
          }
-      } while (!is_valid_denom(cents_paid));
 
-      cents_due = (amount_due.dollars * CENTS_IN_DOLLAR) + amount_due.cents;
+         valid_denom = is_valid_denom(cents_paid);
+
+
+         if (!valid_denom) {
+            printf("Was not a valid denomination of money \n");
+         }
+         add_coin(system, cents_paid);
+
+      } while (!valid_denom);
+
       cents_due -= cents_paid;
 
-      amount_due = coins_to_price(cents_due);
-      /*todo ADD COIN LOGIC HERE*/
    }
    cents_due *= -1;
-   amount_due = coins_to_price(cents_due);
-   printf("Here is your %s, and $%d.%d change", item->name, amount_due
-           .dollars, amount_due.cents);
+   amount = coins_to_price(cents_due);
+   printf("Here is your %s, and $%d.%d change", item->name, amount.dollars,
+          amount.cents);
+   item->on_hand--;
    /*todo COIN LOGIC HERE*/
    return TRUE;
 }
@@ -147,6 +160,7 @@ BOOLEAN add_item(struct ppd_system *system) {
    struct ppd_stock new_stock;
    BOOLEAN works;
    char temp_price[COSTLEN + EXTRACHARS];
+   char *ptr = NULL;
    int on_hand;
 
    printf("Please enter the name of the item:");
@@ -181,6 +195,12 @@ BOOLEAN add_item(struct ppd_system *system) {
       return FALSE;
    }
 
+   sprintf(new_stock.id, "I%4d", get_next_id(system));
+
+
+   for (ptr = &new_stock.id[1]; *ptr == ' '; ptr++) {
+      *ptr = '0';
+   }
    return add_stock(new_stock, system);
 }
 
@@ -231,9 +251,9 @@ BOOLEAN remove_item(struct ppd_system *system) {
       }
    }
 
-   if(yes_no == 'y'){
-      return remove_stock(system,id);
-   }else{
+   if (yes_no == 'y') {
+      return remove_stock(system, id);
+   } else {
       return FALSE;
    }
 }
@@ -287,5 +307,6 @@ BOOLEAN save_exit(struct ppd_system *system) {
     * been implemented. Please note that it is convention that until
     * a function has been implemented it should return FALSE
     */
+   save_system(system);
    return FALSE;
 }
