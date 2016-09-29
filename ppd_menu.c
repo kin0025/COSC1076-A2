@@ -67,15 +67,20 @@ menu_function get_menu_choice(struct menu_item *menu) {
       if (i == 2) {
          printf("Administrator Menu:\n");
       }
-      printf("%s%d.%s %s\n",F_LIGHT_GREEN, i + 1,COLOUR_RESET, menu[i].name);
+      printf("%s%d.%s %s\n", F_LIGHT_GREEN, i + 1, COLOUR_RESET, menu[i].name);
 
    }
-i=0;
+   i = 0;
    do {
-      if(i!=0){printf("Input must be between 1 and %d\n",NUM_MENU_ITEMS);}
-      i++;
+      if (i == 0) {
+         i++;
+      } else {
+         printf("Input must be between 1 and %d\n", NUM_MENU_ITEMS);
+      }
       quit = read_int(&choice);
-   } while (choice > 0 && choice <= NUM_MENU_ITEMS && !quit);
-
+      if (!quit) {
+         return FALSE;
+      }
+   } while (!(choice > 0 && choice <= NUM_MENU_ITEMS));
    return menu[choice - 1].function;
 }

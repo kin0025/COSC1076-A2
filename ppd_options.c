@@ -101,8 +101,8 @@ BOOLEAN purchase_item(struct ppd_system *system) {
 
    while (amount_due.cents > 0 && amount_due.dollars > 0) {
       do {
-         printf("Was not a valid denomination of money\n There is $%d.%d "
-                        "left\n", amount_due.dollars, amount_due.cents);
+         /*printf("Was not a valid denomination of money\n There is $%d.%d "
+                        "left\n", amount_due.dollars, amount_due.cents);*/
 
          no_quit = read_int(&cents_paid);
          if (!no_quit) {
@@ -147,6 +147,7 @@ BOOLEAN add_item(struct ppd_system *system) {
    struct ppd_stock new_stock;
    BOOLEAN works;
    char temp_price[COSTLEN + EXTRACHARS];
+   int on_hand;
 
    printf("Please enter the name of the item:");
    works = read_user_input(new_stock.name, NAMELEN);
@@ -161,10 +162,17 @@ BOOLEAN add_item(struct ppd_system *system) {
    }
 
    printf("Please enter the amount of the item:");
-   works = read_int(&new_stock.on_hand);
+   works = read_int(&on_hand);
    if (!works) {
       return FALSE;
    }
+   while (on_hand < 0) {
+      works = read_int(&on_hand);
+      if (!works) {
+         return FALSE;
+      }
+   }
+   new_stock.on_hand = on_hand;
 
    printf("Please enter the cost of the item in the form dollars.cents:");
 
@@ -203,13 +211,14 @@ BOOLEAN remove_item(struct ppd_system *system) {
       }
       item = find_id(system->item_list->head, id);
    }
-   fprintf("Do you want to remove %s. You cannot undo this action. (Y/N)");
+   printf("Do you want to remove %s. You cannot undo this action. (Y/N)",
+          item->data->name);
    no_quit = read_user_input(yes_no_input, YESNOLEN);
    if (!no_quit) {
       return TRUE;
    }
-   if (strlen(yes_no_input == 2)) {
-      yes_no = tolower(yes_no_input);
+   if (strlen(yes_no_input) == 2) {
+      yes_no = tolower(yes_no_input[0]);
    }
 
    while (yes_no != 'y' && yes_no != 'n') {
@@ -217,8 +226,8 @@ BOOLEAN remove_item(struct ppd_system *system) {
       if (!no_quit) {
          return TRUE;
       }
-      if (strlen(yes_no_input == 2)) {
-         yes_no = tolower(yes_no_input);
+      if (strlen(yes_no_input) == 2) {
+         yes_no = tolower(yes_no_input[0]);
       }
    }
 

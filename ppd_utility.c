@@ -26,7 +26,8 @@ void read_rest_of_line(void) {
    /* reset error flags on stdin */
    clearerr(stdin);
 }
-void read_rest_of_file_line(FILE * file) {
+
+void read_rest_of_file_line(FILE *file) {
    int ch;
    /* keep retrieving characters from stdin until we
     * are at the end of the buffer
@@ -35,6 +36,7 @@ void read_rest_of_file_line(FILE * file) {
    /* reset error flags on stdin */
    clearerr(file);
 }
+
 /**
  * @param system a pointer to a @ref ppd_system struct that holds all 
  * the data for the system we are creating
@@ -59,7 +61,7 @@ BOOLEAN load_stock(struct ppd_system *system, const char *filename) {
    char *token = NULL, *price, current_line[FILE_LINE_LEN + EXTRACHARS];
    struct ppd_stock stock_item;
    int onhand;
-   BOOLEAN no_error = TRUE,stock_added;
+   BOOLEAN no_error = TRUE, stock_added;
 
 
    data_file = fopen(system->stock_file_name, "r");
@@ -99,16 +101,16 @@ BOOLEAN load_stock(struct ppd_system *system, const char *filename) {
       } else {
          stock_item.on_hand = onhand;
       }
-     /* printf("%s\n", stock_item.id);
-      printf("%s\n", stock_item.desc);
-      printf("%s\n", stock_item.name);
-      printf("%d\n", stock_item.on_hand);
-      printf("%d.%d\n----------\n", stock_item.price.dollars,
-             stock_item.price
-                     .cents);*/
+      /* printf("%s\n", stock_item.id);
+       printf("%s\n", stock_item.desc);
+       printf("%s\n", stock_item.name);
+       printf("%d\n", stock_item.on_hand);
+       printf("%d.%d\n----------\n", stock_item.price.dollars,
+              stock_item.price
+                      .cents);*/
       if (no_error) {
          stock_added = add_stock(stock_item, system);
-         if(!stock_added){
+         if (!stock_added) {
             printf("Error encountered and stock could not be added. Please try"
                            " again, or check your file syntax.\n");
             return FALSE;
@@ -230,8 +232,7 @@ BOOLEAN read_user_input(char *buffer, int length) {
 }
 
 
-
-BOOLEAN read_int(int* output) {
+BOOLEAN read_int(int *output) {
    char buffer[MAX_INT_LEN + EXTRACHARS];
    char *ptr = NULL;
    BOOLEAN running = TRUE;
@@ -250,6 +251,7 @@ BOOLEAN read_int(int* output) {
       /* Remove the extra null terminator */
       buffer[strlen(buffer) - 1] = NULL_TERMINATOR;
 
+      if (strlen(buffer) == 0) { return FALSE; }
 
       /* Convert the remaining to integer */
       *output = (int) strtol(buffer, &ptr, BASE);
