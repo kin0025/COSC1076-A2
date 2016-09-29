@@ -90,11 +90,16 @@ BOOLEAN load_stock(struct ppd_system *system, const char *filename) {
 
       price = token;
 
+      /*This has to go before the string to price, as strtok is not
+       * reentrant, and string to price uses it */
+      token = strtok(NULL, DATA_DELIMITER);
+
       no_error = string_to_price(&(stock_item.price), price);
 
-      token = strtok(token, DATA_DELIMITER);
-
+      printf("%s\n", token);
       no_error = to_int(token, &onhand);
+      printf("%d\n", onhand);
+
       /* Check that the integer conversion went successfully */
       if (onhand < 0) {
          no_error = FALSE;
@@ -104,8 +109,8 @@ BOOLEAN load_stock(struct ppd_system *system, const char *filename) {
       /* printf("%s\n", stock_item.id);
        printf("%s\n", stock_item.desc);
        printf("%s\n", stock_item.name);
-       printf("%d\n", stock_item.on_hand);
-       printf("%d.%d\n----------\n", stock_item.price.dollars,
+       printf("%u\n", stock_item.on_hand);
+       printf("%u.%u\n----------\n", stock_item.price.dollars,
               stock_item.price
                       .cents);*/
       if (no_error) {
@@ -224,6 +229,7 @@ BOOLEAN read_user_input(char *buffer, int length) {
    } while (overflow);
    /* Remove the EOL character from string */
    buffer[strlen(buffer) - 1] = NULL_TERMINATOR;
+
    /*If there was only an EOL character return false */
    if (strlen(buffer) == 0) {
       return FALSE;

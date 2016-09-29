@@ -45,7 +45,7 @@ BOOLEAN display_items(struct ppd_system *system) {
    current = system->item_list->head;
    while (current != NULL) {
       item = current->data;
-      printf("%-5s|%-*s| %-8d|$%2d.%-2.2d\n", item->id, name_len, item->name,
+      printf("%-5s|%-*s| %-8u|$%2u.%-2.2u\n", item->id, name_len, item->name,
              item->on_hand, item->price.dollars, item->price.cents);
 
       current = current->next;
@@ -109,7 +109,7 @@ BOOLEAN purchase_item(struct ppd_system *system) {
    while (cents_due > 0) {
       do {
          amount = coins_to_price(cents_due);
-         printf("There is $%d.%2.2d left: ", amount.dollars, amount.cents);
+         printf("There is $%u.%2.2u left: ", amount.dollars, amount.cents);
          no_quit = read_int(&cents_paid);
          if (!no_quit) {/*TODO COIN LOGIC HERE*/
             return TRUE;
@@ -130,7 +130,7 @@ BOOLEAN purchase_item(struct ppd_system *system) {
    }
    cents_due *= -1;
    amount = coins_to_price(cents_due);
-   printf("Here is your %s, and $%d.%d change", item->name, amount.dollars,
+   printf("Here is your %s, and $%u.%2.2u change", item->name, amount.dollars,
           amount.cents);
    item->on_hand--;
    /*todo COIN LOGIC HERE*/

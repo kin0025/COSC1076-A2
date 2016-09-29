@@ -192,3 +192,20 @@ void del_node(struct ppd_node *node) {
       free(node);
    }
 }
+
+BOOLEAN to_string(char string[FILE_LINE_LEN], struct ppd_node *node) {
+   struct ppd_stock *stock;
+   if (node == NULL) {
+      return FALSE;
+   } else {
+      stock = node->data;
+      sprintf(string, "%s|%s|%s|%u.%2.2u|%u", stock->id, stock->name,
+              stock->desc,
+              stock->price.dollars, stock->price.dollars, stock->on_hand);
+      return TRUE;
+   }
+}
+
+struct ppd_node *next_node(struct ppd_node *node) {
+   return node->next;
+}
