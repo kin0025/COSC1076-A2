@@ -67,7 +67,7 @@ menu_function get_menu_choice(struct menu_item *menu) {
       if (i == 2) {
          printf("Administrator Menu:\n");
       }
-      printf("%d. %s\n", i + 1, menu[i].name);
+      printf("%s%d.%s %s\n",F_LIGHT_GREEN, i + 1,COLOUR_RESET, menu[i].name);
 
    }
 i=0;

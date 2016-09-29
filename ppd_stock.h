@@ -166,8 +166,10 @@ BOOLEAN init_list(struct ppd_system *system);
 
 BOOLEAN add_stock(struct ppd_stock stock, struct ppd_system *system);
 
-
 int get_largest_description(struct ppd_system *system);
+
+int get_largest_name(struct ppd_system *system);
+
 
 int get_next_id(struct ppd_system *system);
 

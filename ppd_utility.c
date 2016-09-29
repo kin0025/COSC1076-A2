@@ -59,7 +59,7 @@ BOOLEAN load_stock(struct ppd_system *system, const char *filename) {
    char *token = NULL, *price, current_line[FILE_LINE_LEN + EXTRACHARS];
    struct ppd_stock stock_item;
    int onhand;
-   BOOLEAN no_error = TRUE;
+   BOOLEAN no_error = TRUE,stock_added;
 
 
    data_file = fopen(system->stock_file_name, "r");
@@ -107,7 +107,12 @@ BOOLEAN load_stock(struct ppd_system *system, const char *filename) {
              stock_item.price
                      .cents);*/
       if (no_error) {
-         add_stock(stock_item, system);
+         stock_added = add_stock(stock_item, system);
+         if(!stock_added){
+            printf("Error encountered and stock could not be added. Please try"
+                           " again, or check your file syntax.\n");
+            return FALSE;
+         }
       }
       no_error = TRUE;
 
@@ -148,7 +153,7 @@ BOOLEAN load_coins(struct ppd_system *system, const char *filename) {
 }
 
 /**
- * @param system a pointer to a @ref ppd_system struct that holds all 
+ * @param system a pointer to a @ref ppd_system struct that holds all
  * the data for the system we are creating
  **/
 void system_free(struct ppd_system *system) {
@@ -194,6 +199,8 @@ BOOLEAN read_file_input(char *buffer, int length, FILE *file) {
 }
 
 /*Reused Partially from Assignment 1 */
+/** Returns false if user presses enter or EOF. Enters input into the buffer
+ * file, with expected length of length*/
 BOOLEAN read_user_input(char *buffer, int length) {
    BOOLEAN overflow = FALSE;
    do {
@@ -222,28 +229,7 @@ BOOLEAN read_user_input(char *buffer, int length) {
    return TRUE;
 }
 
-/* Returns true if the first name is earlier in the alphabet than the second */
-BOOLEAN name_sort(char first[NAMELEN + 1], char second[NAMELEN + 1]) {
-   BOOLEAN match = TRUE;
-   BOOLEAN is_smaller = TRUE;
-   int i = 0;
 
-   while (match && i < NAMELEN) {
-      if (first[i] != second[i]) {
-         match = FALSE;
-      } else if (first[i] < second[i]) {
-         match = FALSE;
-         is_smaller = TRUE;
-      }
-      i++;
-   }
-   if (match) {
-      return match;
-   } else {
-      return is_smaller;
-   }
-
-}
 
 BOOLEAN read_int(int* output) {
    char buffer[MAX_INT_LEN + EXTRACHARS];
@@ -263,6 +249,7 @@ BOOLEAN read_int(int* output) {
       }
       /* Remove the extra null terminator */
       buffer[strlen(buffer) - 1] = NULL_TERMINATOR;
+
 
       /* Convert the remaining to integer */
       *output = (int) strtol(buffer, &ptr, BASE);
@@ -313,6 +300,8 @@ BOOLEAN string_to_price(struct price *price_amount, char *price_input) {
       printf("Failed");
       return FALSE;
    }
+   /* strtok_r would make this easier/safer if the calling function also uses
+    * strtok, however not C99 */
    ptr = strtok(NULL, PRICEDELIM);
    int_success = to_int(ptr, &amount);
 

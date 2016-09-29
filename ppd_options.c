@@ -28,18 +28,24 @@
  * @return true as this particular function should never fail.
  **/
 BOOLEAN display_items(struct ppd_system *system) {
-   int desc_len;
+   int name_len,i;
    struct ppd_node *current;
    struct ppd_stock *item;
 
-   printf("Items Menu\n");
-   desc_len = get_largest_description(system);
-   printf("%-5s|%*s|%s|%-5s\n", "ID", desc_len, "Name",
+   printf("\n\nItems:\n");
+   name_len = get_largest_name(system);
+
+   printf("%-5s|%-*s|%-9s|%-5s\n", "ID", name_len, "Name",
           "Available", "Price");
+   for(i=0;i<name_len;i++){
+      printf("=");
+   }
+   printf("=======================\n");
+
    current = system->item_list->head;
    while (current != NULL) {
       item = current->data;
-      printf("%-5s|%*s|%-9d|$%-2d.%-2d\n", item->id, desc_len, item->name,
+      printf("%-5s|%-*s| %-8d|$%2d.%-2.2d\n", item->id, name_len, item->name,
              item->on_hand, item->price.dollars, item->price.cents);
 
       current = current->next;
@@ -66,7 +72,7 @@ BOOLEAN purchase_item(struct ppd_system *system) {
    struct ppd_stock *item = NULL;
    struct price amount_due;
    int cents_paid,cents_due;
-   BOOLEAN found,quit = FALSE;
+   BOOLEAN found,no_quit = TRUE;
    /*
     * Please delete this default return value once this function has
     * been implemented. Please note that it is convention that until
@@ -74,15 +80,15 @@ BOOLEAN purchase_item(struct ppd_system *system) {
     */
    printf("Purchase Item\n-------------\nEnter the id of the item you wish to"
                   " purchase:");
-   quit = read_user_input(id, IDLEN);
-   if(quit){
+   no_quit = read_user_input(id, IDLEN);
+   if(!no_quit){
       return TRUE;
    }
    found = find_id(system->item_list->head, id , item);
    while (found == FALSE) {
       printf("ID not found. Please try again:");
-      quit = read_user_input(id, IDLEN);
-      if(quit){
+      no_quit = read_user_input(id, IDLEN);
+      if(!no_quit){
          return TRUE;
       }
       found = find_id(system->item_list->head, id,item);
@@ -98,8 +104,8 @@ BOOLEAN purchase_item(struct ppd_system *system) {
          printf("Was not a valid denomination of money\n There is $%d.%d "
                         "left", amount_due.dollars, amount_due.cents);
 
-         quit = read_int(&cents_paid);
-         if(quit){
+         no_quit = read_int(&cents_paid);
+         if(!no_quit){
             return TRUE;
          }
       } while (!is_valid_denom(cents_paid));
@@ -188,7 +194,19 @@ BOOLEAN reset_coins(struct ppd_system *system) {
     * been implemented. Please note that it is convention that until
     * a function has been implemented it should return FALSE
     */
-   return FALSE;
+   char string1[NAMELEN], string2[NAMELEN];
+   BOOLEAN quit;
+
+   quit = read_user_input(string1,NAMELEN);
+   if(!quit){
+      return FALSE;
+   }
+   quit = read_user_input(string2,NAMELEN);
+   if(!quit){
+      return FALSE;
+   }
+   printf("%d",strcmp(string1,string2));
+   return TRUE;
 }
 
 /**

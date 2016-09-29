@@ -28,7 +28,7 @@ typedef enum truefalse {
 #define EXTRACHARS 2
 #define NULL_TERMINATOR '\0'
 
-#ifdef _unix_
+#if defined(__linux__) || defined(__unix__)
 
 #define ENTER_COLOUR "\e[93menter\e[0m"
 #define F_LIGHT_YELLOW "\e[93m"
@@ -42,7 +42,6 @@ typedef enum truefalse {
 #define B_YELLOW "\e[45m"
 
 #define COLOUR_RESET "\e[0m"
-
 
 #else
 
