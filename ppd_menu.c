@@ -62,7 +62,7 @@ void init_menu(struct menu_item *menu) {
 menu_function get_menu_choice(struct menu_item *menu) {
    int i, choice;
    BOOLEAN quit = FALSE;
-   printf("\n\n\n\n\n\n\nMain Menu:\n");
+   printf("Main Menu:\n");
    for (i = 0; i < NUM_MENU_ITEMS; i++) {
       if (i == 2) {
          printf("Administrator Menu:\n");

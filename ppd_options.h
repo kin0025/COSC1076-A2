@@ -84,5 +84,6 @@ BOOLEAN display_coins(struct ppd_system *);
 
 #define COINLEN 5
 
+#define YESNOLEN 1
 
 #endif

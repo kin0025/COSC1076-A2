@@ -166,6 +166,8 @@ BOOLEAN init_list(struct ppd_system *system);
 
 BOOLEAN add_stock(struct ppd_stock stock, struct ppd_system *system);
 
+BOOLEAN remove_stock(struct ppd_system *system, char id[IDLEN + 1]);
+
 int get_largest_description(struct ppd_system *system);
 
 int get_largest_name(struct ppd_system *system);
@@ -173,7 +175,7 @@ int get_largest_name(struct ppd_system *system);
 
 int get_next_id(struct ppd_system *system);
 
-BOOLEAN find_id(struct ppd_node *node, char *id, struct ppd_stock *result);
+struct ppd_node *find_id(struct ppd_node *node, char *id);
 
 struct ppd_node *create_node(void);
 

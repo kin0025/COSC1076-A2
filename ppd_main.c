@@ -103,6 +103,7 @@ int main(int argc, char **argv) {
       menu_choice = get_menu_choice(menu);
       /* run each option selected */
       keep_running = menu_choice(&system);
+      printf("\n\n\n\n\n\n\n=======================\n");
       /* until the user quits */
    }while (keep_running);
    /* make sure you always free all memory and close all files

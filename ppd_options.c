@@ -28,7 +28,7 @@
  * @return true as this particular function should never fail.
  **/
 BOOLEAN display_items(struct ppd_system *system) {
-   int name_len,i;
+   int name_len, i;
    struct ppd_node *current;
    struct ppd_stock *item;
 
@@ -37,7 +37,7 @@ BOOLEAN display_items(struct ppd_system *system) {
 
    printf("%-5s|%-*s|%-9s|%-5s\n", "ID", name_len, "Name",
           "Available", "Price");
-   for(i=0;i<name_len;i++){
+   for (i = 0; i < name_len; i++) {
       printf("=");
    }
    printf("=======================\n");
@@ -51,7 +51,7 @@ BOOLEAN display_items(struct ppd_system *system) {
       current = current->next;
    }
 
-   printf("Press %s to go back to menu",ENTER_COLOUR);
+   printf("Press %s to go back to menu", ENTER_COLOUR);
    /* Used to require an Enter */
    read_rest_of_line();
    /*
@@ -71,8 +71,8 @@ BOOLEAN purchase_item(struct ppd_system *system) {
    char id[IDLEN + 1];
    struct ppd_stock *item = NULL;
    struct price amount_due;
-   int cents_paid,cents_due;
-   BOOLEAN found,no_quit = TRUE;
+   int cents_paid, cents_due;
+   BOOLEAN no_quit = TRUE;
    /*
     * Please delete this default return value once this function has
     * been implemented. Please note that it is convention that until
@@ -81,31 +81,31 @@ BOOLEAN purchase_item(struct ppd_system *system) {
    printf("Purchase Item\n-------------\nEnter the id of the item you wish to"
                   " purchase:");
    no_quit = read_user_input(id, IDLEN);
-   if(!no_quit){
+   if (!no_quit) {
       return TRUE;
    }
-   found = find_id(system->item_list->head, id , item);
-   while (found == FALSE) {
+   item = find_id(system->item_list->head, id)->data;
+   while (item == NULL) {
       printf("ID not found. Please try again:");
       no_quit = read_user_input(id, IDLEN);
-      if(!no_quit){
+      if (!no_quit) {
          return TRUE;
       }
-      found = find_id(system->item_list->head, id,item);
+      item = find_id(system->item_list->head, id)->data;
    }
-   printf("You have selected %s: %s\nThis will cost you $%2d.%2d", item->name,
+   printf("You have selected %s: %s\nThis will cost you $%2d.%2d\n", item->name,
           item->desc, item->price.dollars, item->price.cents);
    amount_due = item->price;
-   printf("Please type the value of each coin or note in cents\nPress enter "
-                  "on a new empty line to cancel purchase.");
+   printf("Please type the value of each coin or note in cents or press %s "
+                  "on a new empty line to cancel purchase.\n", ENTER_COLOUR);
 
    while (amount_due.cents > 0 && amount_due.dollars > 0) {
       do {
          printf("Was not a valid denomination of money\n There is $%d.%d "
-                        "left", amount_due.dollars, amount_due.cents);
+                        "left\n", amount_due.dollars, amount_due.cents);
 
          no_quit = read_int(&cents_paid);
-         if(!no_quit){
+         if (!no_quit) {
             return TRUE;
          }
       } while (!is_valid_denom(cents_paid));
@@ -114,13 +114,13 @@ BOOLEAN purchase_item(struct ppd_system *system) {
       cents_due -= cents_paid;
 
       amount_due = coins_to_price(cents_due);
-     /*todo ADD COIN LOGIC HERE*/
+      /*todo ADD COIN LOGIC HERE*/
    }
    cents_due *= -1;
    amount_due = coins_to_price(cents_due);
-   printf("Here is your %s, and $%d.%d change",item->name,amount_due
-           .dollars,amount_due.cents);
-/*todo COIN LOGIC HERE*/
+   printf("Here is your %s, and $%d.%d change", item->name, amount_due
+           .dollars, amount_due.cents);
+   /*todo COIN LOGIC HERE*/
    return TRUE;
 }
 
@@ -144,15 +144,36 @@ BOOLEAN save_system(struct ppd_system *system) {
  * @return true when adding an item succeeds and false when it does not
  **/
 BOOLEAN add_item(struct ppd_system *system) {
-   /*
-    * Please delete this default return value once this function has
-    * been implemented. Please note that it is convention that until
-    * a function has been implemented it should return FALSE
-    */
-   printf("???");
+   struct ppd_stock new_stock;
+   BOOLEAN works;
+   char temp_price[COSTLEN + EXTRACHARS];
 
+   printf("Please enter the name of the item:");
+   works = read_user_input(new_stock.name, NAMELEN);
+   if (!works) {
+      return FALSE;
+   }
 
-   return FALSE;
+   printf("Please enter the description of the item:");
+   works = read_user_input(new_stock.desc, DESCLEN);
+   if (!works) {
+      return FALSE;
+   }
+
+   printf("Please enter the amount of the item:");
+   works = read_int(&new_stock.on_hand);
+   if (!works) {
+      return FALSE;
+   }
+
+   printf("Please enter the cost of the item in the form dollars.cents:");
+
+   works = read_user_input(temp_price, COSTLEN);
+   if (!works) {
+      return FALSE;
+   }
+
+   return add_stock(new_stock, system);
 }
 
 /**
@@ -161,12 +182,51 @@ BOOLEAN add_item(struct ppd_system *system) {
  * @return true when removing an item succeeds and false when it does not
  **/
 BOOLEAN remove_item(struct ppd_system *system) {
-   /*
-    * Please delete this default return value once this function has
-    * been implemented. Please note that it is convention that until
-    * a function has been implemented it should return FALSE
-    */
-   return FALSE;
+   BOOLEAN no_quit;
+   struct ppd_node *item;
+   char id[IDLEN + EXTRACHARS];
+   char yes_no_input[YESNOLEN + EXTRACHARS], yes_no;
+   printf("Remove Item\n-------------\nEnter the id of the item you wish to"
+                  " remove:");
+   no_quit = read_user_input(id, IDLEN);
+
+
+   if (!no_quit) {
+      return TRUE;
+   }
+   item = find_id(system->item_list->head, id);
+   while (item == NULL) {
+      printf("ID not found. Please try again:");
+      no_quit = read_user_input(id, IDLEN);
+      if (!no_quit) {
+         return TRUE;
+      }
+      item = find_id(system->item_list->head, id);
+   }
+   fprintf("Do you want to remove %s. You cannot undo this action. (Y/N)");
+   no_quit = read_user_input(yes_no_input, YESNOLEN);
+   if (!no_quit) {
+      return TRUE;
+   }
+   if (strlen(yes_no_input == 2)) {
+      yes_no = tolower(yes_no_input);
+   }
+
+   while (yes_no != 'y' && yes_no != 'n') {
+      no_quit = read_user_input(yes_no_input, YESNOLEN);
+      if (!no_quit) {
+         return TRUE;
+      }
+      if (strlen(yes_no_input == 2)) {
+         yes_no = tolower(yes_no_input);
+      }
+   }
+
+   if(yes_no == 'y'){
+      return remove_stock(system,id);
+   }else{
+      return FALSE;
+   }
 }
 
 /**
@@ -194,19 +254,8 @@ BOOLEAN reset_coins(struct ppd_system *system) {
     * been implemented. Please note that it is convention that until
     * a function has been implemented it should return FALSE
     */
-   char string1[NAMELEN], string2[NAMELEN];
-   BOOLEAN quit;
 
-   quit = read_user_input(string1,NAMELEN);
-   if(!quit){
-      return FALSE;
-   }
-   quit = read_user_input(string2,NAMELEN);
-   if(!quit){
-      return FALSE;
-   }
-   printf("%d",strcmp(string1,string2));
-   return TRUE;
+   return FALSE;
 }
 
 /**

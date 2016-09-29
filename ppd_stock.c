@@ -17,7 +17,7 @@
  **/
 
 BOOLEAN add_stock(struct ppd_stock stock, struct ppd_system *system) {
-   int i = 0, x = 0;
+   int i = 0;
    struct ppd_node *new_node = NULL;
    struct ppd_node *current = NULL, *last = NULL;
    BOOLEAN stock_added = FALSE;
@@ -42,8 +42,6 @@ BOOLEAN add_stock(struct ppd_stock stock, struct ppd_system *system) {
    }
 
    while (!stock_added && current != NULL) {
-      printf("%d\n", x);
-      x++;
       if (strcmp(stock.name, current->data->name) <= 0) {
          if (i == 0) {
             system->item_list->head = new_node;
@@ -134,16 +132,15 @@ int get_largest_name(struct ppd_system *system) {
    return longest_name;
 }
 
-BOOLEAN find_id(struct ppd_node *node, char *id, struct ppd_stock *result) {
-   if (node == NULL) {
-      return FALSE;
-   }
+struct ppd_node *find_id(struct ppd_node *node, char *id) {
 
-   if (strcmp(node->data->id, id) == 0) {
-      result = node->data;
-      return TRUE;
+   if (node == NULL) {
+      return NULL;
    }
-   return find_id(node->next, id, result);
+   if (strcmp(node->data->id, id) == 0) {
+      return node;
+   }
+   return find_id(node->next, id);
 
 
 }
