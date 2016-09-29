@@ -17,7 +17,7 @@
  **/
 
 BOOLEAN add_stock(struct ppd_stock stock, struct ppd_system *system) {
-   int i = 0,x=0;
+   int i = 0, x = 0;
    struct ppd_node *new_node = NULL;
    struct ppd_node *current = NULL, *last = NULL;
    BOOLEAN stock_added = FALSE;
@@ -34,23 +34,22 @@ BOOLEAN add_stock(struct ppd_stock stock, struct ppd_system *system) {
    new_node->next = NULL;
 
 
-
    current = system->item_list->head;
 
    if (current == NULL) {
       system->item_list->head = new_node;
       stock_added = TRUE;
    }
-/*FIXME*/
-   while (!stock_added && current != NULL) {
-      printf("%d\n",x); x++;
 
-      if (strcmp(stock.name,current->data->name) >= 0) {
+   while (!stock_added && current != NULL) {
+      printf("%d\n", x);
+      x++;
+      if (strcmp(stock.name, current->data->name) <= 0) {
          if (i == 0) {
             system->item_list->head = new_node;
+         } else {
+            last->next = new_node;
          }
-         last->next = new_node;
-
          new_node->next = current;
          stock_added = TRUE;
       }
@@ -58,10 +57,11 @@ BOOLEAN add_stock(struct ppd_stock stock, struct ppd_system *system) {
       current = current->next;
       i++;
    }
-   if(!stock_added && current!=NULL && current->next == NULL){
+   if (!stock_added && current != NULL && current->next == NULL) {
       current->next = new_node;
+      stock_added= TRUE;
    }
-   if(!stock_added){
+   if (!stock_added) {
       printf("Returning without adding\n");
    }
    return stock_added;
