@@ -61,7 +61,8 @@ void init_menu(struct menu_item *menu) {
  **/
 menu_function get_menu_choice(struct menu_item *menu) {
    int i, choice;
-   printf("Main Menu:\n");
+   BOOLEAN quit = FALSE;
+   printf("\n\n\n\n\n\n\nMain Menu:\n");
    for (i = 0; i < NUM_MENU_ITEMS; i++) {
       if (i == 2) {
          printf("Administrator Menu:\n");
@@ -69,13 +70,12 @@ menu_function get_menu_choice(struct menu_item *menu) {
       printf("%d. %s\n", i + 1, menu[i].name);
 
    }
-
-   choice = read_int(&choice);
+i=0;
    do {
-      printf("Input must be between 1 and %d\n",NUM_MENU_ITEMS);
-      printf("Input: %d",choice);
-      choice = read_int();
-   } while (choice > 0 && choice <= NUM_MENU_ITEMS);
+      if(i!=0){printf("Input must be between 1 and %d\n",NUM_MENU_ITEMS);}
+      i++;
+      quit = read_int(&choice);
+   } while (choice > 0 && choice <= NUM_MENU_ITEMS && !quit);
 
    return menu[choice - 1].function;
 }

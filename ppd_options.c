@@ -11,6 +11,7 @@
 
 #include "ppd_options.h"
 #include "ppd_utility.h"
+#include "ppd_shared.h"
 /**
  * @file ppd_options.c this is where you need to implement the main 
  * options for your program. You may however have the actual work done
@@ -44,6 +45,9 @@ BOOLEAN display_items(struct ppd_system *system) {
       current = current->next;
    }
 
+   printf("Press %s to go back to menu",ENTER_COLOUR);
+   /* Used to require an Enter */
+   read_rest_of_line();
    /*
     * Please delete this default return value once this function has
     * been implemented. Please note that it is convention that until
@@ -62,7 +66,7 @@ BOOLEAN purchase_item(struct ppd_system *system) {
    struct ppd_stock *item = NULL;
    struct price amount_due;
    int cents_paid,cents_due;
-   BOOLEAN found;
+   BOOLEAN found,quit = FALSE;
    /*
     * Please delete this default return value once this function has
     * been implemented. Please note that it is convention that until
@@ -70,11 +74,17 @@ BOOLEAN purchase_item(struct ppd_system *system) {
     */
    printf("Purchase Item\n-------------\nEnter the id of the item you wish to"
                   " purchase:");
-   read_user_input(id, IDLEN);
+   quit = read_user_input(id, IDLEN);
+   if(quit){
+      return TRUE;
+   }
    found = find_id(system->item_list->head, id , item);
    while (found == FALSE) {
       printf("ID not found. Please try again:");
-      read_user_input(id, IDLEN);
+      quit = read_user_input(id, IDLEN);
+      if(quit){
+         return TRUE;
+      }
       found = find_id(system->item_list->head, id,item);
    }
    printf("You have selected %s: %s\nThis will cost you $%2d.%2d", item->name,
@@ -88,7 +98,10 @@ BOOLEAN purchase_item(struct ppd_system *system) {
          printf("Was not a valid denomination of money\n There is $%d.%d "
                         "left", amount_due.dollars, amount_due.cents);
 
-         cents_paid = read_int();
+         quit = read_int(&cents_paid);
+         if(quit){
+            return TRUE;
+         }
       } while (!is_valid_denom(cents_paid));
 
       cents_due = (amount_due.dollars * CENTS_IN_DOLLAR) + amount_due.cents;
@@ -102,7 +115,7 @@ BOOLEAN purchase_item(struct ppd_system *system) {
    printf("Here is your %s, and $%d.%d change",item->name,amount_due
            .dollars,amount_due.cents);
 /*todo COIN LOGIC HERE*/
-   return FALSE;
+   return TRUE;
 }
 
 /**
