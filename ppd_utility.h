@@ -67,7 +67,7 @@ BOOLEAN load_coins(struct ppd_system *, const char *);
  **/
 void system_free(struct ppd_system *);
 
-BOOLEAN read_int(int* output);
+BOOLEAN read_int(int *output);
 
 BOOLEAN to_int(char *input, int *output);
 
@@ -78,4 +78,7 @@ BOOLEAN read_file_input(char *buffer, int length, FILE *file);
 BOOLEAN string_to_price(struct price *price_amount, char *price_input);
 
 BOOLEAN price_to_int(struct price *price, int *cents);
+
+BOOLEAN rename_file(const char *name, BOOLEAN reverse);
+
 #endif

@@ -33,7 +33,7 @@ void init_menu(struct menu_item *menu) {
       menu[1].function = &purchase_item;
 
       strcpy(menu[2].name, "Save and Exit");
-      menu[2].function = &save_exit;
+      menu[2].function = &save_system;
 
       strcpy(menu[3].name, "Add Item");
       menu[3].function = &add_item;

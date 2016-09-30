@@ -61,7 +61,7 @@ BOOLEAN load_stock(struct ppd_system *system, const char *filename) {
    char *token = NULL, *price, current_line[FILE_LINE_LEN + EXTRACHARS];
    struct ppd_stock stock_item;
    int onhand;
-   BOOLEAN no_error = TRUE, stock_added;
+   BOOLEAN no_error, stock_added;
 
 
    data_file = fopen(system->stock_file_name, "r");
@@ -73,56 +73,72 @@ BOOLEAN load_stock(struct ppd_system *system, const char *filename) {
    }
 
    while (read_file_input(current_line, FILE_LINE_LEN, data_file)) {
+      no_error = TRUE;
 
+      /* Read the first token */
       token = strtok(current_line, DATA_DELIMITER);
 
-      strcpy(stock_item.id, token);
+      /* Set the ID to the first token. Length checking is performed*/
+      if (strlen(token) == IDLEN) {
+         strcpy(stock_item.id, token);
+      } else {
+         printf("Invalid ID when loading: %s . Item was not added\n", token);
+         continue;
+      }
+      token = strtok(NULL, DATA_DELIMITER);
+
+      if (strlen(token) <= NAMELEN) {
+         strcpy(stock_item.name, token);
+      } else {
+         printf("Invalid Name when loading: %s . Item was not added\n", token);
+         continue;
+
+      }
 
       token = strtok(NULL, DATA_DELIMITER);
 
-      strcpy(stock_item.name, token);
+      if (strlen(token) <= DESCLEN) {
+         strcpy(stock_item.desc, token);
+      } else {
+         printf("Invalid Description when loading: %s . Item was not added\n",
+                token);
+         continue;
+      }
 
-      token = strtok(NULL, DATA_DELIMITER);
-
-      strcpy(stock_item.desc, token);
-
-      token = strtok(NULL, DATA_DELIMITER);
-
-      price = token;
+      price = strtok(NULL, DATA_DELIMITER);
 
       /*This has to go before the string to price, as strtok is not
        * reentrant, and string to price uses it */
       token = strtok(NULL, DATA_DELIMITER);
-
-      no_error = string_to_price(&(stock_item.price), price);
-
-      printf("%s\n", token);
       no_error = to_int(token, &onhand);
-      printf("%d\n", onhand);
 
       /* Check that the integer conversion went successfully */
       if (onhand < 0) {
          no_error = FALSE;
+      } else if (!no_error) {
+         printf("Onhand was not in correct integer format. The item will not "
+                        "be added.\n");
+         continue;
       } else {
          stock_item.on_hand = onhand;
       }
-      /* printf("%s\n", stock_item.id);
-       printf("%s\n", stock_item.desc);
-       printf("%s\n", stock_item.name);
-       printf("%u\n", stock_item.on_hand);
-       printf("%u.%u\n----------\n", stock_item.price.dollars,
-              stock_item.price
-                      .cents);*/
+
+      no_error = string_to_price(&(stock_item.price), price);
+
+      if (!no_error) {
+         printf("Price conversion failed. Item was not added.\n");
+      }
+
+      print_stock(stock_item);
+
       if (no_error) {
          stock_added = add_stock(stock_item, system);
          if (!stock_added) {
             printf("Error encountered and stock could not be added. Please try"
                            " again, or check your file syntax.\n");
-            return FALSE;
+            /*return FALSE;*/
          }
       }
-      no_error = TRUE;
-
    }
 
    fclose(data_file);
@@ -180,7 +196,7 @@ BOOLEAN read_file_input(char *buffer, int length, FILE *file) {
    do {
       /* Check for EOF input and return false, receive input */
 
-      if (fgets(buffer, length + 1, file) == NULL) {
+      if (fgets(buffer, length + 1, file) == NULL || feof(file)) {
          return FALSE;
       }
 
@@ -335,4 +351,21 @@ BOOLEAN price_to_int(struct price *price, int *cents) {
    }
    *cents = price->cents + (price->dollars * CENTS_IN_DOLLAR);
    return TRUE;
+}
+
+BOOLEAN rename_file(const char *name, BOOLEAN reverse) {
+   char *file_bak;
+   BOOLEAN worked;
+
+   file_bak = malloc(sizeof(char) * (strlen(name) + 3));
+   sprintf(file_bak, "%s.bak", name);
+
+   if (reverse) {
+      worked = rename(file_bak, name);
+   } else {
+      worked = rename(name, file_bak);
+   }
+   free(file_bak);
+
+   return worked;
 }

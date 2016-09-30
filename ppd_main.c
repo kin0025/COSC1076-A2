@@ -96,6 +96,10 @@ int main(int argc, char **argv) {
    }
    /* test if everything has been initialised correctly */
 /* TODO:ADD INIT STUFF */
+   if (system.item_list->count == 0) {
+      printf("Nothing was loaded from file. Check your input formatting and "
+                     "file name.\n");
+   }
    /* initialise the menu system */
    init_menu(menu);
    /* loop, asking for options from the menu */
@@ -109,7 +113,7 @@ int main(int argc, char **argv) {
 
       keep_running = menu_choice(&system);
 
-      if (menu_choice == &save_exit) {
+      if (menu_choice == &save_system) {
          break;
       }
       printf("\n\n\n\n\n\n\n=======================\n");

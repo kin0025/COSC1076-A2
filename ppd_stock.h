@@ -181,6 +181,12 @@ struct ppd_node *create_node(void);
 
 void del_node(struct ppd_node *node);
 
+BOOLEAN stock_to_string(char string[FILE_LINE_LEN], struct ppd_node *node);
+
+BOOLEAN save_stock(struct ppd_system *system);
+
+void print_stock(struct ppd_stock stock_item);
+
 #endif
 
 

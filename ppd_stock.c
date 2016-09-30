@@ -55,12 +55,14 @@ BOOLEAN add_stock(struct ppd_stock stock, struct ppd_system *system) {
       current = current->next;
       i++;
    }
-   if (!stock_added && current != NULL && current->next == NULL) {
-      current->next = new_node;
-      stock_added= TRUE;
+   if (!stock_added && current == NULL) {
+      last->next = new_node;
+      stock_added = TRUE;
    }
    if (!stock_added) {
       printf("Returning without adding\n");
+   } else {
+      system->item_list->count++;
    }
    return stock_added;
 }
@@ -87,7 +89,9 @@ BOOLEAN remove_stock(struct ppd_system *system, char id[IDLEN + 1]) {
       current = current->next;
       i++;
    }
-
+   if (stock_removed) {
+      system->item_list->count--;
+   }
    return stock_removed;
 }
 
@@ -193,7 +197,7 @@ void del_node(struct ppd_node *node) {
    }
 }
 
-BOOLEAN to_string(char string[FILE_LINE_LEN], struct ppd_node *node) {
+BOOLEAN stock_to_string(char string[FILE_LINE_LEN], struct ppd_node *node) {
    struct ppd_stock *stock;
    if (node == NULL) {
       return FALSE;
@@ -201,11 +205,60 @@ BOOLEAN to_string(char string[FILE_LINE_LEN], struct ppd_node *node) {
       stock = node->data;
       sprintf(string, "%s|%s|%s|%u.%2.2u|%u", stock->id, stock->name,
               stock->desc,
-              stock->price.dollars, stock->price.dollars, stock->on_hand);
+              stock->price.dollars, stock->price.cents, stock->on_hand);
       return TRUE;
    }
 }
 
-struct ppd_node *next_node(struct ppd_node *node) {
-   return node->next;
+BOOLEAN save_stock(struct ppd_system *system) {
+   struct ppd_node *node = NULL;
+   BOOLEAN no_error = TRUE;
+   char output_string[FILE_LINE_LEN];
+   FILE *stock_file = NULL, *error_file = NULL;
+
+
+   node = system->item_list->head;
+
+   rename_file(system->stock_file_name, FALSE);
+
+   error_file = fopen("error.dat", "w");
+   stock_file = fopen(system->stock_file_name, "w");
+   if (stock_file != NULL && error_file != NULL) {
+      while (node != NULL && no_error) {
+         no_error = stock_to_string(output_string, node);
+         if (no_error) {
+            fprintf(stock_file, "%s\n", output_string);
+         } else {
+            fprintf(error_file, "%s\n", output_string);
+         }
+         node = node->next;
+      }
+      fflush(error_file);
+      fflush(stock_file);
+   }
+   if (error_file != NULL) {
+      fclose(error_file);
+   } else {
+      printf("Error file could not be written to.\n Nothing was saved\n");
+      rename_file(system->stock_file_name, TRUE);
+   }
+   if (stock_file != NULL) {
+      fclose(stock_file);
+   } else {
+      printf("Stock file could not be written to. Nothing was saved.\n");
+      rename_file(system->stock_file_name, TRUE);
+   }
+
+
+   return FALSE;
+}
+
+void print_stock(struct ppd_stock stock_item) {
+   printf("ID: %s\n", stock_item.id);
+   printf("Name: %s\n", stock_item.name);
+   printf("Desc: %s\n", stock_item.desc);
+   printf("On Hand: %u\n", stock_item.on_hand);
+   printf("Price: %u.%2.2u\n----------\n", stock_item.price.dollars,
+          stock_item.price
+                  .cents);
 }

@@ -143,11 +143,11 @@ BOOLEAN purchase_item(struct ppd_system *system) {
  * @return true when a save succeeds and false when it does not
  **/
 BOOLEAN save_system(struct ppd_system *system) {
-   /*
-    * Please delete this default return value once this function has
-    * been implemented. Please note that it is convention that until
-    * a function has been implemented it should return FALSE
-    */
+   BOOLEAN no_error;
+   no_error = save_stock(system);
+   if (!no_error) { return no_error; }
+   printf("Error occured during saving\n");
+   /* TODO ADD COIN SAVING */
    return FALSE;
 }
 
@@ -298,15 +298,5 @@ BOOLEAN display_coins(struct ppd_system *system) {
     * been implemented. Please note that it is convention that until
     * a function has been implemented it should return FALSE
     */
-   return FALSE;
-}
-
-BOOLEAN save_exit(struct ppd_system *system) {
-   /*
-    * Please delete this default return value once this function has
-    * been implemented. Please note that it is convention that until
-    * a function has been implemented it should return FALSE
-    */
-   save_system(system);
    return FALSE;
 }
