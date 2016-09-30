@@ -42,7 +42,7 @@ BOOLEAN display_items(struct ppd_system *system) {
    }
    printf("=======================\n");
 
-   current = system->item_list->head;
+   init_node(current, system);
    while (current != NULL) {
       item = current->data;
       printf("%-5s|%-*s| %-8u|$%2u.%-2.2u\n", item->id, name_len, item->name,
@@ -73,6 +73,12 @@ BOOLEAN purchase_item(struct ppd_system *system) {
    int cents_paid, cents_due;
    BOOLEAN no_quit, valid_denom;
    struct price amount;
+   struct ppd_node *node;
+
+   no_quit = init_node(node, system);
+   if (!no_quit) {
+      return FALSE;
+   }
 
    printf("Purchase Item\n-------------\nEnter the id of the item you wish to"
                   " purchase:");
@@ -80,14 +86,14 @@ BOOLEAN purchase_item(struct ppd_system *system) {
    if (!no_quit) {
       return TRUE;
    }
-   item = find_id(system->item_list->head, id)->data;
+   item = find_id(node, id)->data;
    while (item == NULL) {
       printf("ID not found. Please try again:");
       no_quit = read_user_input(id, IDLEN);
       if (!no_quit) {
          return TRUE;
       }
-      item = find_id(system->item_list->head, id)->data;
+      item = find_id(node, id)->data;
    }
    if (item->on_hand == 0) {
       printf("The item you have selected is out of stock.\n");
@@ -230,6 +236,13 @@ BOOLEAN remove_item(struct ppd_system *system) {
    struct ppd_node *item;
    char id[IDLEN + EXTRACHARS];
    char yes_no_input[YESNOLEN + EXTRACHARS], yes_no;
+   struct ppd_node *node;
+
+   no_quit = init_node(node, system);
+   if (!no_quit) {
+      return FALSE;
+   }
+
    printf("Remove Item\n-------------\nEnter the id of the item you wish to"
                   " remove:");
    no_quit = read_user_input(id, IDLEN);
@@ -238,14 +251,14 @@ BOOLEAN remove_item(struct ppd_system *system) {
    if (!no_quit) {
       return TRUE;
    }
-   item = find_id(system->item_list->head, id);
+   item = find_id(node, id);
    while (item == NULL) {
       printf("ID not found. Please try again:");
       no_quit = read_user_input(id, IDLEN);
       if (!no_quit) {
          return TRUE;
       }
-      item = find_id(system->item_list->head, id);
+      item = find_id(node, id);
    }
    printf("Do you want to remove %s. You cannot undo this action. (Y/N)",
           item->data->name);
@@ -256,7 +269,7 @@ BOOLEAN remove_item(struct ppd_system *system) {
    if (strlen(yes_no_input) == 2) {
       yes_no = tolower(yes_no_input[0]);
    }
-
+   printf("%s : %c", yes_no_input, yes_no);
    while (yes_no != 'y' && yes_no != 'n') {
       no_quit = read_user_input(yes_no_input, YESNOLEN);
       if (!no_quit) {
@@ -280,12 +293,16 @@ BOOLEAN remove_item(struct ppd_system *system) {
  * @return true as this function cannot fail.
  **/
 BOOLEAN reset_stock(struct ppd_system *system) {
-   /*
-    * Please delete this default return value once this function has
-    * been implemented. Please note that it is convention that until
-    * a function has been implemented it should return FALSE
-    */
-   return FALSE;
+   struct ppd_node *node;
+   BOOLEAN no_error;
+   no_error = init_node(node, system);
+   if (!no_error) {
+      return FALSE;
+   }
+   while (next_node(node)) {
+      node->data->on_hand = DEFAULT_STOCK_LEVEL;
+   }
+   return TRUE;
 }
 
 /**
