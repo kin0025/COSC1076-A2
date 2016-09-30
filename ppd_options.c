@@ -74,11 +74,18 @@ BOOLEAN display_items(struct ppd_system *system) {
 BOOLEAN purchase_item(struct ppd_system *system) {
    char id[IDLEN + 1];
    struct ppd_stock *item = NULL;
-   int cents_paid, cents_due;
-   BOOLEAN no_quit, valid_denom;
+   int cents_paid, cents_due, i;
+   BOOLEAN no_quit, valid_denom, coins_active;
    struct price amount;
    struct ppd_node *node = NULL;
+   struct coin coins_taken[NUM_DENOMS], coins_change[NUM_DENOMS];
 
+   coins_active = system->coin_from_file;
+
+   if (coins_active) {
+      void_balances(coins_taken);
+      void_balances(coins_change);
+   }
    no_quit = init_node(&node, system);
    if (!no_quit) {
       return FALSE;
@@ -121,7 +128,7 @@ BOOLEAN purchase_item(struct ppd_system *system) {
          amount = coins_to_price(cents_due);
          printf("There is $%u.%2.2u left: ", amount.dollars, amount.cents);
          no_quit = read_int(&cents_paid);
-         if (!no_quit) {/*TODO COIN LOGIC HERE*/
+         if (!no_quit) {
             return TRUE;
          }
 
@@ -131,8 +138,10 @@ BOOLEAN purchase_item(struct ppd_system *system) {
          if (!valid_denom) {
             printf("Was not a valid denomination of money \n");
          }
-         add_coin(system, cents_paid);
-
+         if (coins_active) {
+            add_coin(system->cash_register, cents_paid, 1);
+            add_coin(coins_taken, cents_paid, 1);
+         }
       } while (!valid_denom);
 
       cents_due -= cents_paid;
@@ -140,10 +149,38 @@ BOOLEAN purchase_item(struct ppd_system *system) {
    }
    cents_due *= -1;
    amount = coins_to_price(cents_due);
-   printf("Here is your %s, and $%u.%2.2u change", item->name, amount.dollars,
-          amount.cents);
-   item->on_hand--;
-   /*todo COIN LOGIC HERE*/
+   if (!coins_active) {
+      printf("Here is your %s, and $%u.%2.2u change", item->name,
+             amount.dollars,
+             amount.cents);
+      item->on_hand--;
+   } else {
+      if (calculate_change(coins_change, cents_due, system)) {
+         for (i = 0; i < NUM_DENOMS; i++) {
+            if (coins_change[i].count > 0) {
+               remove_coin(system->cash_register,
+                           denom_valuer(coins_change[i].denom),
+                           coins_change->count);
+
+               if (type_of_denom(&coins_change[i].count) == DOLLARS) {
+                  printf("$%d * %d", denom_valuer(coins_change[i].denom) /
+                                     CENTS_IN_DOLLAR,
+                         coins_change[i].count);
+               } else {
+                  printf("%dc * %d", denom_valuer(coins_change[i].denom),
+                         coins_change[i].count);
+               }
+            }
+         }
+      } else {
+         for (i = 0; i < NUM_DENOMS; i++) {
+            remove_coin(system->cash_register,
+                        denom_valuer(coins_change[i].denom),
+                        coins_taken[i].count);
+         }
+         return FALSE;
+      }
+   }
    return TRUE;
 }
 
@@ -285,7 +322,7 @@ BOOLEAN remove_item(struct ppd_system *system) {
 
    if (yes_no == 'y') {
       if (remove_stock(system, id)) {
-         printf("Removed Succesfully\n");
+         printf("Removed Successfully\n");
          return TRUE;
       } else { return FALSE; }
    } else {
@@ -308,7 +345,7 @@ BOOLEAN reset_stock(struct ppd_system *system) {
    while (next_node(&node)) {
       node->data->on_hand = DEFAULT_STOCK_LEVEL;
    }
-   printf("Stock counts reset to %\n", DEFAULT_STOCK_LEVEL);
+   printf("Stock counts reset to %d\n", DEFAULT_STOCK_LEVEL);
    return TRUE;
 }
 
@@ -318,13 +355,9 @@ BOOLEAN reset_stock(struct ppd_system *system) {
  * @return true as this function cannot fail.
  **/
 BOOLEAN reset_coins(struct ppd_system *system) {
-   /*
-    * Please delete this default return value once this function has
-    * been implemented. Please note that it is convention that until
-    * a function has been implemented it should return FALSE
-    */
 
-   return FALSE;
+   reset_coins_imp(system);
+   return TRUE;
 }
 
 /**
@@ -333,10 +366,7 @@ BOOLEAN reset_coins(struct ppd_system *system) {
  * @return true as this function cannot fail
  **/
 BOOLEAN display_coins(struct ppd_system *system) {
-   /*
-    * Please delete this default return value once this function has
-    * been implemented. Please note that it is convention that until
-    * a function has been implemented it should return FALSE
-    */
-   return FALSE;
+   display_coins_imp(system);
+
+   return TRUE;
 }

@@ -28,7 +28,7 @@
  * should simply be calling other functions to get the job done.
  **/
 int main(int argc, char **argv) {
-   BOOLEAN keep_running = TRUE, success = TRUE;
+   BOOLEAN keep_running = TRUE, success = TRUE, no_error;
    char *data_name = NULL, *coin_name = NULL;
    FILE *data_file = NULL, *coin_file = NULL;
    menu_function menu_choice;
@@ -107,13 +107,16 @@ int main(int argc, char **argv) {
       /* run each option selected */
 
       if (menu_choice == NULL) {
+         keep_running = FALSE;
          break;
       }
 
-      keep_running = menu_choice(&system);
-
+      no_error = menu_choice(&system);
+      if (!no_error) {
+         printf("The previous choice did not complete successfully. Try again.\n");
+      }
       if (menu_choice == &save_system) {
-         break;
+         keep_running = FALSE;
       }
       printf("\n\n\n\n\n\n\n=======================\n");
       /* until the user quits */

@@ -33,6 +33,12 @@ struct price;
  **/
 #define NUM_DENOMS 8
 
+#define DISPLAY_LEFT_PADDING 12
+
+#define COIN_LINE_LEN 8
+
+#define PRICEDELIM "."
+
 /**
  * enumeration representing the various types of currency available in
  * the system. 
@@ -40,6 +46,9 @@ struct price;
 enum denomination {
     FIVE_CENTS, TEN_CENTS, TWENTY_CENTS, FIFTY_CENTS, ONE_DOLLAR,
     TWO_DOLLARS, FIVE_DOLLARS, TEN_DOLLARS
+};
+enum denom_type {
+    DOLLARS, CENTS
 };
 
 /**
@@ -65,9 +74,23 @@ struct price coins_to_price(int cents);
 BOOLEAN is_valid_denom(int denom);
 
 
-BOOLEAN add_coin(struct ppd_system *system, int value);
+BOOLEAN add_coin(struct coin cash_register[NUM_DENOMS], int value, int amount);
 
-BOOLEAN remove_coin(struct ppd_system *system, int value);
+BOOLEAN remove_coin(struct coin cash_register[NUM_DENOMS], int value, int
+amount);
 
+void display_coins_imp(struct ppd_system *system);
 
+BOOLEAN calculate_change(struct coin change[NUM_DENOMS], int change_amount,
+                         struct ppd_system *system);
+
+int num_places(int n);
+
+enum denom_type type_of_denom(unsigned int *unit_value);
+
+enum denomination value_to_denom(int value);
+
+int denom_valuer(enum denomination denom);
+
+void reset_coins_imp(struct ppd_system *system);
 #endif

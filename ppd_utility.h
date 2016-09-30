@@ -55,8 +55,10 @@ BOOLEAN load_coins(struct ppd_system *, const char *);
 
 
 #define BASE 10
-#define PRICEDELIM "."
 
+#define NUMBER_STOCK_DELIMS 4
+
+#define NUMBER_COIN_DELIMS 1
 /**
  * free all memory that has been allocated. If you are struggling to
  * find all your memory leaks, compile your program with the -g flag
@@ -80,5 +82,7 @@ BOOLEAN string_to_price(struct price *price_amount, char *price_input);
 BOOLEAN price_to_int(struct price *price, int *cents);
 
 BOOLEAN rename_file(const char *name, BOOLEAN reverse);
+
+int count_delims(char *delim, char *string);
 
 #endif

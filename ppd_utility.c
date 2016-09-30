@@ -72,74 +72,79 @@ BOOLEAN load_stock(struct ppd_system *system, const char *filename) {
       return FALSE;
    }
 
-   while (read_file_input(current_line, FILE_LINE_LEN, data_file)) {
+   while (read_file_input(current_line, FILE_LINE_LEN, data_file) &&
+          !feof(data_file)) {
       no_error = TRUE;
+      if (count_delims(DATA_DELIMITER, current_line) == NUMBER_STOCK_DELIMS) {
+         /* Read the first token */
+         token = strtok(current_line, DATA_DELIMITER);
 
-      /* Read the first token */
-      token = strtok(current_line, DATA_DELIMITER);
+         /* Set the ID to the first token. Length checking is performed*/
+         if (strlen(token) == IDLEN) {
+            strcpy(stock_item.id, token);
+         } else {
+            printf("Invalid ID when loading: %s . Item was not added\n", token);
+            continue;
+         }
+         token = strtok(NULL, DATA_DELIMITER);
 
-      /* Set the ID to the first token. Length checking is performed*/
-      if (strlen(token) == IDLEN) {
-         strcpy(stock_item.id, token);
-      } else {
-         printf("Invalid ID when loading: %s . Item was not added\n", token);
-         continue;
-      }
-      token = strtok(NULL, DATA_DELIMITER);
+         if (strlen(token) <= NAMELEN) {
+            strcpy(stock_item.name, token);
+         } else {
+            printf("Invalid Name when loading: %s . Item was not added\n",
+                   token);
+            continue;
 
-      if (strlen(token) <= NAMELEN) {
-         strcpy(stock_item.name, token);
-      } else {
-         printf("Invalid Name when loading: %s . Item was not added\n", token);
-         continue;
+         }
 
-      }
+         token = strtok(NULL, DATA_DELIMITER);
 
-      token = strtok(NULL, DATA_DELIMITER);
+         if (strlen(token) <= DESCLEN) {
+            strcpy(stock_item.desc, token);
+         } else {
+            printf("Invalid Description when loading: %s . Item was not added\n",
+                   token);
+            continue;
+         }
 
-      if (strlen(token) <= DESCLEN) {
-         strcpy(stock_item.desc, token);
-      } else {
-         printf("Invalid Description when loading: %s . Item was not added\n",
-                token);
-         continue;
-      }
+         price = strtok(NULL, DATA_DELIMITER);
 
-      price = strtok(NULL, DATA_DELIMITER);
+         /*This has to go before the string to price, as strtok is not
+          * reentrant, and string to price uses it */
+         token = strtok(NULL, DATA_DELIMITER);
+         no_error = to_int(token, &onhand);
 
-      /*This has to go before the string to price, as strtok is not
-       * reentrant, and string to price uses it */
-      token = strtok(NULL, DATA_DELIMITER);
-      no_error = to_int(token, &onhand);
+         /* Check that the integer conversion went successfully */
+         if (onhand < 0) {
+            no_error = FALSE;
+         } else if (!no_error) {
+            printf("Onhand was not in correct integer format. The item will not"
+                           " be added.\n");
+            continue;
+         } else {
+            stock_item.on_hand = onhand;
+         }
 
-      /* Check that the integer conversion went successfully */
-      if (onhand < 0) {
-         no_error = FALSE;
-      } else if (!no_error) {
-         printf("Onhand was not in correct integer format. The item will not "
-                        "be added.\n");
-         continue;
-      } else {
-         stock_item.on_hand = onhand;
-      }
+         no_error = string_to_price(&(stock_item.price), price);
 
-      no_error = string_to_price(&(stock_item.price), price);
-
-      if (!no_error) {
-         printf("Price conversion failed. Item was not added.\n");
-      }
+         if (!no_error) {
+            printf("Price conversion failed. Item was not added.\n");
+         }
 
 /*
       print_stock(stock_item);
 */
 
-      if (no_error) {
-         stock_added = add_stock(stock_item, system);
-         if (!stock_added) {
-            printf("Error encountered and stock could not be added. Please try"
-                           " again, or check your file syntax.\n");
-            /*return FALSE;*/
+         if (no_error) {
+            stock_added = add_stock(stock_item, system);
+            if (!stock_added) {
+               printf("Error encountered and stock could not be added. Please "
+                              "try again, or check your file syntax.\n");
+               /*return FALSE;*/
+            }
          }
+      } else {
+         printf("Line has wrong number of fields \n%s", current_line);
       }
    }
 
@@ -159,20 +164,41 @@ BOOLEAN load_stock(struct ppd_system *system, const char *filename) {
  **/
 BOOLEAN load_coins(struct ppd_system *system, const char *filename) {
    FILE *coin_file;
+   char current_line[COIN_LINE_LEN + EXTRACHARS], *token;
+   int denom_value, amount;
+
+   void_balances(system->cash_register);
+
    if (system->coin_from_file == TRUE) {
       coin_file = fopen(system->coin_file_name, "r");
-      fclose(coin_file);
+      if (coin_file != NULL) {
+         while (!feof(coin_file)) {
+            while (read_file_input(current_line, COIN_LINE_LEN, coin_file) &&
+                   !feof(coin_file)) {
+               if (count_delims(COIN_DELIM, current_line) == 1) {
+                  token = strtok(current_line, COIN_DELIM);
+                  to_int(token, &denom_value);
+                  token = strtok(NULL, COIN_DELIM);
+                  to_int(token, &amount);
+                  add_coin(system->cash_register, denom_value, amount);
+               } else {
+                  printf("Wrong number of fields in line: %s\nDisabling coin "
+                                 "system.\n", current_line);
+                  system->coin_from_file = FALSE;
+                  return FALSE;
+               }
 
-/*todo: Add coin loading properly */
-   } else {
-      void_balances(system->cash_register);
-      return TRUE;
+            }
+         }
+
+         fclose(coin_file);
+      } else {
+         printf("Invalid coin file. Disabling coin system\n");
+         system->coin_from_file = FALSE;
+         return FALSE;
+      }
    }
-   /*
-    * Please delete this default return value once this function has
-    * been implemented. Please note that it is convention that until
-    * a function has been implemented it should return FALSE
-    */
+
    return TRUE;
 
 }
@@ -370,4 +396,16 @@ BOOLEAN rename_file(const char *name, BOOLEAN reverse) {
    free(file_bak);
 
    return worked;
+}
+
+/* Only functions on single chatacter delimiters */
+int count_delims(char *delim, char *string) {
+   if (strlen(delim) != 1)return -1;
+   if (*string == NULL_TERMINATOR) {
+      return 0;
+   }
+   if (*string == delim[0]) {
+      return 1 + count_delims(delim, ++string);
+   }
+   return count_delims(delim, ++string);
 }
