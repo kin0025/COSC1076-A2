@@ -38,7 +38,6 @@ int main(int argc, char **argv) {
    system.coin_from_file = FALSE;
    system.coin_file_name = NULL;
    system.stock_file_name = NULL;
-
    /* validate command line arguments */
    switch (argc) {
       case 3:

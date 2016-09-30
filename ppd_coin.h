@@ -26,6 +26,8 @@ struct price;
 
 #define VALID_DENOMS {5,10,20,50,100,200,500,1000}
 
+#define MINUMUM_DENOM 5
+
 /**
  * The number of denominations of currency available in the system
  **/

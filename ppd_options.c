@@ -71,7 +71,7 @@ BOOLEAN purchase_item(struct ppd_system *system) {
    char id[IDLEN + 1];
    struct ppd_stock *item = NULL;
    int cents_paid, cents_due;
-   BOOLEAN no_quit = TRUE, valid_denom;
+   BOOLEAN no_quit, valid_denom;
    struct price amount;
 
    printf("Purchase Item\n-------------\nEnter the id of the item you wish to"
@@ -93,7 +93,7 @@ BOOLEAN purchase_item(struct ppd_system *system) {
       printf("The item you have selected is out of stock.\n");
       return TRUE;
    }
-   printf("You have selected %s: %s\nThis will cost you $%2d.%-2.2d\n",
+   printf("You have selected %s: %s\nThis will cost you $%2u.%-2.2u\n",
           item->name,
           item->desc, item->price.dollars, item->price.cents);
 
@@ -161,7 +161,10 @@ BOOLEAN add_item(struct ppd_system *system) {
    BOOLEAN works;
    char temp_price[COSTLEN + EXTRACHARS];
    char *ptr = NULL;
+   int id;
+/*
    int on_hand;
+*/
 
    printf("Please enter the name of the item:");
    works = read_user_input(new_stock.name, NAMELEN);
@@ -175,7 +178,7 @@ BOOLEAN add_item(struct ppd_system *system) {
       return FALSE;
    }
 
-   printf("Please enter the amount of the item:");
+/*   printf("Please enter the amount of the item:");
    works = read_int(&on_hand);
    if (!works) {
       return FALSE;
@@ -185,18 +188,31 @@ BOOLEAN add_item(struct ppd_system *system) {
       if (!works) {
          return FALSE;
       }
-   }
-   new_stock.on_hand = on_hand;
+   }*/
+   new_stock.on_hand = DEFAULT_STOCK_LEVEL;
 
    printf("Please enter the cost of the item in the form dollars.cents:");
 
-   works = read_user_input(temp_price, COSTLEN);
-   if (!works) {
-      return FALSE;
+   do {
+      if (!works) {
+         printf("Wrong format. Cents must be less than 100 and divisible by "
+                        "%d Please try again: ", MINUMUM_DENOM);
+      }
+      works = read_user_input(temp_price, COSTLEN);
+      if (!works) {
+         return FALSE;
+      }
+      works = string_to_price(&new_stock.price, temp_price);
+   } while (!works);
+
+   id = get_next_id(system);
+   if (id <= 9999) {
+      sprintf(new_stock.id, "I%4d", id);
+   } else {
+      printf("%s WARNING. THE DATABASE IS NOW FULL %s\n YOU WILL NOT BE ABLE "
+                     "TO ADD NEW ITEMS UNTIL THE SYSTEM'S STOCK IS RESET OR "
+                     "MORE IDS ARE ALLOCATED\n", B_YELLOW, COLOUR_RESET);
    }
-
-   sprintf(new_stock.id, "I%4d", get_next_id(system));
-
 
    for (ptr = &new_stock.id[1]; *ptr == ' '; ptr++) {
       *ptr = '0';

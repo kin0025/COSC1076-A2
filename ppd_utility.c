@@ -67,8 +67,8 @@ BOOLEAN load_stock(struct ppd_system *system, const char *filename) {
    data_file = fopen(system->stock_file_name, "r");
 
    if (data_file == NULL) {
-      printf("Failed to load data file. Please close any programs that may have "
-                     "it open and try again");
+      printf("Failed to load data file. Please close any programs that may have"
+                     " it open and try again");
       return FALSE;
    }
 
@@ -129,7 +129,9 @@ BOOLEAN load_stock(struct ppd_system *system, const char *filename) {
          printf("Price conversion failed. Item was not added.\n");
       }
 
+/*
       print_stock(stock_item);
+*/
 
       if (no_error) {
          stock_added = add_stock(stock_item, system);
@@ -321,7 +323,6 @@ BOOLEAN string_to_price(struct price *price_amount, char *price_input) {
    if (ptr != NULL && int_success) {
       price_amount->dollars = amount;
    } else {
-      printf("Failed");
       return FALSE;
    }
    /* strtok_r would make this easier/safer if the calling function also uses
@@ -329,7 +330,8 @@ BOOLEAN string_to_price(struct price *price_amount, char *price_input) {
    ptr = strtok(NULL, PRICEDELIM);
    int_success = to_int(ptr, &amount);
 
-   if (ptr != NULL && int_success) {
+   if (ptr != NULL && int_success && amount < 100 && (amount % MINUMUM_DENOM)
+                                                     == 0) {
       price_amount->cents = amount;
    } else {
       return FALSE;

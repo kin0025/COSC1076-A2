@@ -150,20 +150,31 @@ struct ppd_node *find_id(struct ppd_node *node, char *id) {
 }
 
 int get_next_id(struct ppd_system *system) {
-   int max_id = 1, i, current_id;
+   int max_id = 1, i, current_id, x;
    char id[IDLEN];
    struct ppd_node *current = NULL;
-   BOOLEAN int_success;
+   BOOLEAN int_success, not_a_zero_found;
 
    current = system->item_list->head;
 
    while (current != NULL) {
+      not_a_zero_found = TRUE;
+      x = 0;
       for (i = 1; i < IDLEN; i++) {
-         id[i - 1] = current->data->id[i];
+         if (not_a_zero_found) {
+            if (current->data->id[i] != 0)
+               id[x] = current->data->id[i];
+            not_a_zero_found = FALSE;
+            x++;
+         } else {
+            id[x] = current->data->id[i];
+            x++;
+         }
       }
+
       int_success = to_int(id, &current_id);
       if (!int_success) {
-         fprintf(stderr, "Invalid ID transform");
+         fprintf(stderr, "Invalid ID transform\n");
       }
       if (current_id > max_id) {
          max_id = current_id;
@@ -171,7 +182,7 @@ int get_next_id(struct ppd_system *system) {
       current = current->next;
    }
 
-   return max_id;
+   return max_id + 1;
 }
 
 struct ppd_node *create_node(void) {
