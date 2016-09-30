@@ -274,18 +274,18 @@ void print_stock(struct ppd_stock stock_item) {
                   .cents);
 }
 
-BOOLEAN init_node(struct ppd_node *node, struct ppd_system *system) {
+BOOLEAN init_node(struct ppd_node **node, struct ppd_system *system) {
    if (system->item_list->head != NULL) {
-      node = system->item_list->head;
+      *node = system->item_list->head;
       return TRUE;
    } else {
       return FALSE;
    }
 }
 
-BOOLEAN next_node(struct ppd_node *node) {
-   if (node->next != NULL) {
-      node = node->next;
+BOOLEAN next_node(struct ppd_node **node) {
+   if ((*node)->next != NULL) {
+      *node = (*node)->next;
       return TRUE;
    } else {
       return FALSE;

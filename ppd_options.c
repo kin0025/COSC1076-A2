@@ -29,8 +29,9 @@
  **/
 BOOLEAN display_items(struct ppd_system *system) {
    int name_len, i;
-   struct ppd_node *current;
+   struct ppd_node *current = NULL;
    struct ppd_stock *item;
+   BOOLEAN is_node;
 
    printf("\n\nItems:\n");
    name_len = get_largest_name(system);
@@ -42,15 +43,18 @@ BOOLEAN display_items(struct ppd_system *system) {
    }
    printf("=======================\n");
 
-   init_node(current, system);
-   while (current != NULL) {
-      item = current->data;
-      printf("%-5s|%-*s| %-8u|$%2u.%-2.2u\n", item->id, name_len, item->name,
-             item->on_hand, item->price.dollars, item->price.cents);
+   is_node = init_node(&current, system);
+   if (is_node) {
+      do {
+         item = current->data;
 
-      current = current->next;
+         printf("%-5s|%-*s| %-8u|$%2u.%-2.2u\n", item->id, name_len, item->name,
+                item->on_hand, item->price.dollars, item->price.cents);
+
+      } while (next_node(&current));
+   } else {
+      printf("No items in inventory \n");
    }
-
    printf("Press %s to go back to menu", ENTER_COLOUR);
    /* Used to require an Enter */
    read_rest_of_line();
@@ -73,9 +77,9 @@ BOOLEAN purchase_item(struct ppd_system *system) {
    int cents_paid, cents_due;
    BOOLEAN no_quit, valid_denom;
    struct price amount;
-   struct ppd_node *node;
+   struct ppd_node *node = NULL;
 
-   no_quit = init_node(node, system);
+   no_quit = init_node(&node, system);
    if (!no_quit) {
       return FALSE;
    }
@@ -233,12 +237,12 @@ BOOLEAN add_item(struct ppd_system *system) {
  **/
 BOOLEAN remove_item(struct ppd_system *system) {
    BOOLEAN no_quit;
-   struct ppd_node *item;
+   struct ppd_node *item = NULL;
    char id[IDLEN + EXTRACHARS];
    char yes_no_input[YESNOLEN + EXTRACHARS], yes_no;
-   struct ppd_node *node;
+   struct ppd_node *node = NULL;
 
-   no_quit = init_node(node, system);
+   no_quit = init_node(&node, system);
    if (!no_quit) {
       return FALSE;
    }
@@ -266,10 +270,9 @@ BOOLEAN remove_item(struct ppd_system *system) {
    if (!no_quit) {
       return TRUE;
    }
-   if (strlen(yes_no_input) == 2) {
+   if (strlen(yes_no_input) != 2) {
       yes_no = tolower(yes_no_input[0]);
    }
-   printf("%s : %c", yes_no_input, yes_no);
    while (yes_no != 'y' && yes_no != 'n') {
       no_quit = read_user_input(yes_no_input, YESNOLEN);
       if (!no_quit) {
@@ -281,7 +284,10 @@ BOOLEAN remove_item(struct ppd_system *system) {
    }
 
    if (yes_no == 'y') {
-      return remove_stock(system, id);
+      if (remove_stock(system, id)) {
+         printf("Removed Succesfully\n");
+         return TRUE;
+      } else { return FALSE; }
    } else {
       return FALSE;
    }
@@ -293,15 +299,16 @@ BOOLEAN remove_item(struct ppd_system *system) {
  * @return true as this function cannot fail.
  **/
 BOOLEAN reset_stock(struct ppd_system *system) {
-   struct ppd_node *node;
+   struct ppd_node *node = NULL;
    BOOLEAN no_error;
-   no_error = init_node(node, system);
+   no_error = init_node(&node, system);
    if (!no_error) {
       return FALSE;
    }
-   while (next_node(node)) {
+   while (next_node(&node)) {
       node->data->on_hand = DEFAULT_STOCK_LEVEL;
    }
+   printf("Stock counts reset to %\n", DEFAULT_STOCK_LEVEL);
    return TRUE;
 }
 
