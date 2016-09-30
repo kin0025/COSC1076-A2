@@ -33,7 +33,7 @@ struct price;
  **/
 #define NUM_DENOMS 8
 
-#define DISPLAY_LEFT_PADDING 12
+#define DISPLAY_LEFT_PADDING 11
 
 #define COIN_LINE_LEN 8
 

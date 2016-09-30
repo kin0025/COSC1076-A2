@@ -58,11 +58,7 @@ BOOLEAN display_items(struct ppd_system *system) {
    printf("Press %s to go back to menu", ENTER_COLOUR);
    /* Used to require an Enter */
    read_rest_of_line();
-   /*
-    * Please delete this default return value once this function has
-    * been implemented. Please note that it is convention that until
-    * a function has been implemented it should return FALSE
-    */
+
    return TRUE;
 }
 
@@ -154,7 +150,7 @@ BOOLEAN purchase_item(struct ppd_system *system) {
              amount.dollars,
              amount.cents);
       item->on_hand--;
-   } else {
+   } else {/*FIXME */
       if (calculate_change(coins_change, cents_due, system)) {
          for (i = 0; i < NUM_DENOMS; i++) {
             if (coins_change[i].count > 0) {

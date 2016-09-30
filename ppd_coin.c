@@ -104,7 +104,7 @@ void display_coins_imp(struct ppd_system *system) {
 
    coins = system->cash_register;
 
-   printf("Denomination | Count\n");
+   printf("Denomination | Count\n\n");
    for (i = 0; i < NUM_DENOMS; i++) {
       value = denom_valuer(coins[i].denom);
 
@@ -114,10 +114,14 @@ void display_coins_imp(struct ppd_system *system) {
          name = cents;
       }
 
-      padd_name = DISPLAY_LEFT_PADDING - num_places(value) - strlen(name);
+      padd_name = DISPLAY_LEFT_PADDING - num_places(value);
 
-      printf("%u %*s | %5u\n", value, padd_name, name, coins[i].count);
+      printf("%u %-*s | %5u\n", value, padd_name, name, coins[i].count);
    }
+
+   printf("Press %s to go back to menu", ENTER_COLOUR);
+   /* Used to require an Enter */
+   read_rest_of_line();
 }
 
 
