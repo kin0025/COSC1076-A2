@@ -146,13 +146,8 @@ BOOLEAN purchase_item(struct ppd_system *system) {
    }
    cents_due *= -1;
    amount = coins_to_price(cents_due);
-   if (!coins_active) {
-      printf("Here is your %s, and $%u.%2.2u change\n", item->name,
-             amount.dollars,
-             amount.cents);
-      item->on_hand--;
-   } else {/*FIXME */
-      if (calculate_change(coins_change, cents_due, system)) {
+
+   if (calculate_change(coins_change, cents_due, system)) {
          printf("Here is your %s, and $%u.%2.2u change\n", item->name,
                 amount.dollars,
                 amount.cents);
@@ -182,7 +177,6 @@ BOOLEAN purchase_item(struct ppd_system *system) {
          printf("Change could not be given. All money has been refunded \n");
          return FALSE;
       }
-   }
 
    return TRUE;
 }
