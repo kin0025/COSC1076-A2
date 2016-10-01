@@ -42,7 +42,7 @@
 #define DESCLEN 255
 
 
-#define COSTLEN 5
+#define COSTLEN 6
 
 #define NUMBERDELIMS 5
 

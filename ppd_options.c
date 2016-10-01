@@ -154,6 +154,10 @@ BOOLEAN purchase_item(struct ppd_system *system) {
       item->on_hand--;
    } else {/*FIXME */
       if (calculate_change(coins_change, cents_due, system)) {
+         printf("Here is your %s, and $%u.%2.2u change", item->name,
+                amount.dollars,
+                amount.cents);
+         item->on_hand--;
          for (i = 0; i < NUM_DENOMS; i++) {
             if (coins_change[i].count > 0) {
                remove_coin(system->cash_register,
@@ -177,9 +181,11 @@ BOOLEAN purchase_item(struct ppd_system *system) {
                         denom_valuer(coins_change[i].denom),
                         coins_taken[i].count);
          }
+         printf("Change could not be given. All money has been refunded \n");
          return FALSE;
       }
    }
+
    return TRUE;
 }
 

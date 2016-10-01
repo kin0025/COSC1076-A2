@@ -132,14 +132,13 @@ BOOLEAN calculate_change(struct coin change[NUM_DENOMS], int change_amount,
 
    void_balances(change);
 
-   while (change_amount > 0) {
+   while (change_amount != 0) {
       useable_coin_count = 0;
       for (i = 0; i < NUM_DENOMS; i++) {
          if ((change_amount - denom_values[i]) >= 0) {
 
             if (system->cash_register[i].count > 0) {
-               change_amount -=
-                       denom_values[i];
+               change_amount -= denom_values[i];
                change[i].count++;
                system->cash_register[i].count--;
                break;
