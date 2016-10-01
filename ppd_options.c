@@ -12,6 +12,7 @@
 #include "ppd_options.h"
 #include "ppd_utility.h"
 #include "ppd_shared.h"
+#include "ppd_coin.h"
 /**
  * @file ppd_options.c this is where you need to implement the main 
  * options for your program. You may however have the actual work done
@@ -75,6 +76,7 @@ BOOLEAN purchase_item(struct ppd_system *system) {
    struct price amount;
    struct ppd_node *node = NULL;
    struct coin coins_taken[NUM_DENOMS], coins_change[NUM_DENOMS];
+   char cents_symbol = 189;
 
    coins_active = system->coin_from_file;
 
@@ -159,11 +161,12 @@ BOOLEAN purchase_item(struct ppd_system *system) {
                            coins_change->count);
 
                if (type_of_denom(&coins_change[i].count) == DOLLARS) {
-                  printf("$%d * %d", denom_valuer(coins_change[i].denom) /
+                  printf("$%u * %u", denom_valuer(coins_change[i].denom) /
                                      CENTS_IN_DOLLAR,
                          coins_change[i].count);
                } else {
-                  printf("%dc * %d", denom_valuer(coins_change[i].denom),
+                  printf("%u%c * %u", denom_valuer(coins_change[i].denom),
+                         cents_symbol,
                          coins_change[i].count);
                }
             }
@@ -186,12 +189,24 @@ BOOLEAN purchase_item(struct ppd_system *system) {
  * @return true when a save succeeds and false when it does not
  **/
 BOOLEAN save_system(struct ppd_system *system) {
-   BOOLEAN no_error;
-   no_error = save_stock(system);
-   if (!no_error) { return no_error; }
-   printf("Error occured during saving\n");
-   /* TODO ADD COIN SAVING */
-   return FALSE;
+   BOOLEAN no_error_stock, no_error_coin;
+   no_error_stock = save_stock(system);
+
+   if (system->coin_from_file) {
+      no_error_coin = save_coins(system);
+
+   }
+   if (!no_error_stock) {
+      printf("Error when saving stock\n");
+   }
+   if (!no_error_coin) {
+      printf("Error when saving coins\n");
+   }
+   if (!no_error_coin || !no_error_stock) {
+      return FALSE;
+   }
+
+   return TRUE;
 }
 
 /**
@@ -353,6 +368,7 @@ BOOLEAN reset_stock(struct ppd_system *system) {
 BOOLEAN reset_coins(struct ppd_system *system) {
 
    reset_coins_imp(system);
+   printf("Coin counts reset to %d.\n", DEFAULT_COIN_COUNT);
    return TRUE;
 }
 

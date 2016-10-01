@@ -93,4 +93,6 @@ enum denomination value_to_denom(int value);
 int denom_valuer(enum denomination denom);
 
 void reset_coins_imp(struct ppd_system *system);
+
+BOOLEAN save_coins(struct ppd_system *system);
 #endif

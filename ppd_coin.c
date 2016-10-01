@@ -192,12 +192,13 @@ BOOLEAN save_coins(struct ppd_system *system) {
                     system->cash_register[i].count);
          }
          fclose(coin_file);
+         return TRUE;
       } else {
          rename_file(system->coin_file_name, TRUE);
+         return FALSE;
       }
    }
-
-   return FALSE;
+   return TRUE;
 }
 
 int denom_valuer(enum denomination denom) {

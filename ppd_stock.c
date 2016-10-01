@@ -247,21 +247,29 @@ BOOLEAN save_stock(struct ppd_system *system) {
       fflush(error_file);
       fflush(stock_file);
    }
+   if (ftell(error_file) != 0) {
+      printf("Errors were encountered when saving. Check error.dat for lines "
+                     "that errored\n");
+      return FALSE;
+   }
+
    if (error_file != NULL) {
       fclose(error_file);
    } else {
       printf("Error file could not be written to.\n Nothing was saved\n");
       rename_file(system->stock_file_name, TRUE);
+      return FALSE;
    }
    if (stock_file != NULL) {
       fclose(stock_file);
    } else {
       printf("Stock file could not be written to. Nothing was saved.\n");
       rename_file(system->stock_file_name, TRUE);
+      return FALSE;
    }
 
 
-   return FALSE;
+   return TRUE;
 }
 
 void print_stock(struct ppd_stock stock_item) {

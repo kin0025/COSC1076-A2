@@ -193,8 +193,9 @@ BOOLEAN load_coins(struct ppd_system *system, const char *filename) {
 
          fclose(coin_file);
       } else {
-         printf("Invalid coin file. Disabling coin system\n");
-         system->coin_from_file = FALSE;
+         printf("Invalid coin file. No coins were loaded. File will be used "
+                        "for saving"
+                        "\n");
          return FALSE;
       }
    }

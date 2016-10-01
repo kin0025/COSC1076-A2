@@ -29,8 +29,8 @@
  **/
 int main(int argc, char **argv) {
    BOOLEAN keep_running = TRUE, success = TRUE, no_error;
-   char *data_name = NULL, *coin_name = NULL;
-   FILE *data_file = NULL, *coin_file = NULL;
+   char *data_name = NULL;
+   FILE *data_file = NULL;
    menu_function menu_choice;
    struct menu_item menu[NUM_MENU_ITEMS];
    struct ppd_system system;
@@ -41,16 +41,7 @@ int main(int argc, char **argv) {
    /* validate command line arguments */
    switch (argc) {
       case 3:
-         coin_name = argv[2];
-         coin_file = fopen(coin_name, "r");
-         if (coin_file == NULL) {
-            fprintf(stderr, "Unable to open file\n");
-            printf("Coin file failed to load\n");
-            return EXIT_FAILURE;
-         }
-         fclose(coin_file);
-         printf("We apologise, but this function is not implemented yet.\n");
-         system.coin_file_name = coin_name;
+         system.coin_file_name = argv[2];
          system.coin_from_file = TRUE;
       case 2:
          data_name = argv[1];
@@ -88,7 +79,7 @@ int main(int argc, char **argv) {
    }
    /*load_coins(system,); */
 
-   success = load_coins(&system, coin_name);
+   success = load_coins(&system, system.coin_file_name);
 
    if (!success) {
       return EXIT_FAILURE;
@@ -115,10 +106,10 @@ int main(int argc, char **argv) {
       if (!no_error) {
          printf("The previous choice did not complete successfully. Try again.\n");
       }
-      if (menu_choice == &save_system) {
+      if (menu_choice == &save_system && no_error == TRUE) {
          keep_running = FALSE;
       }
-      printf("\n\n\n\n\n\n\n=======================\n");
+      printf("\n\n=======================\n");
       /* until the user quits */
       if (!keep_running) {
          save_system(&system);
