@@ -180,7 +180,7 @@ BOOLEAN load_coins(struct ppd_system *system, const char *filename) {
                   to_int(token, &denom_value);
                   token = strtok(NULL, COIN_DELIM);
                   to_int(token, &amount);
-                  add_coin(system->cash_register, denom_value, amount);
+                  add_coin_val(system->cash_register, denom_value, amount);
                } else {
                   printf("Wrong number of fields in line: %s\nDisabling coin "
                                  "system.\n", current_line);

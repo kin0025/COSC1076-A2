@@ -71,13 +71,20 @@ BOOLEAN void_balances(struct coin cash_register[NUM_DENOMS]);
 
 struct price coins_to_price(int cents);
 
-BOOLEAN is_valid_denom(int denom);
+BOOLEAN is_valid_denom(enum denomination denom);
 
 
-BOOLEAN add_coin(struct coin cash_register[NUM_DENOMS], int value, int amount);
-
-BOOLEAN remove_coin(struct coin cash_register[NUM_DENOMS], int value, int
+BOOLEAN add_coin_val(struct coin cash_register[NUM_DENOMS], int value, int
 amount);
+
+BOOLEAN remove_coin_val(struct coin cash_register[NUM_DENOMS], int value, int
+amount);
+
+BOOLEAN remove_coin_denom(struct coin cash_register[NUM_DENOMS], enum
+        denomination denom, int amount);
+
+BOOLEAN add_coin_denom(struct coin cash_register[NUM_DENOMS], enum
+        denomination denom, int amount);
 
 void display_coins_imp(struct ppd_system *system);
 
@@ -95,4 +102,6 @@ int denom_valuer(enum denomination denom);
 void reset_coins_imp(struct ppd_system *system);
 
 BOOLEAN save_coins(struct ppd_system *system);
+
+int count_coins(struct coin cash_register[NUM_DENOMS], enum denomination denom);
 #endif

@@ -76,7 +76,6 @@ BOOLEAN purchase_item(struct ppd_system *system) {
    struct price amount;
    struct ppd_node *node = NULL;
    struct coin coins_taken[NUM_DENOMS], coins_change[NUM_DENOMS];
-   char cents_symbol = 189;
 
    coins_active = system->coin_from_file;
 
@@ -137,8 +136,8 @@ BOOLEAN purchase_item(struct ppd_system *system) {
             printf("Was not a valid denomination of money \n");
          }
          if (coins_active) {
-            add_coin(system->cash_register, cents_paid, 1);
-            add_coin(coins_taken, cents_paid, 1);
+            add_coin_val(system->cash_register, cents_paid, 1);
+            add_coin_val(coins_taken, cents_paid, 1);
          }
       } while (!valid_denom);
 
@@ -148,38 +147,37 @@ BOOLEAN purchase_item(struct ppd_system *system) {
    cents_due *= -1;
    amount = coins_to_price(cents_due);
    if (!coins_active) {
-      printf("Here is your %s, and $%u.%2.2u change", item->name,
+      printf("Here is your %s, and $%u.%2.2u change\n", item->name,
              amount.dollars,
              amount.cents);
       item->on_hand--;
    } else {/*FIXME */
       if (calculate_change(coins_change, cents_due, system)) {
-         printf("Here is your %s, and $%u.%2.2u change", item->name,
+         printf("Here is your %s, and $%u.%2.2u change\n", item->name,
                 amount.dollars,
                 amount.cents);
          item->on_hand--;
          for (i = 0; i < NUM_DENOMS; i++) {
             if (coins_change[i].count > 0) {
-               remove_coin(system->cash_register,
-                           denom_valuer(coins_change[i].denom),
-                           coins_change->count);
+               remove_coin_denom(system->cash_register,
+                                 coins_change[i].denom,
+                                 coins_change->count);
 
                if (type_of_denom(&coins_change[i].count) == DOLLARS) {
-                  printf("$%u * %u", denom_valuer(coins_change[i].denom) /
+                  printf("|$%u*%u|", denom_valuer(coins_change[i].denom) /
                                      CENTS_IN_DOLLAR,
                          coins_change[i].count);
                } else {
-                  printf("%u%c * %u", denom_valuer(coins_change[i].denom),
-                         cents_symbol,
+                  printf("|%uc*%u|", denom_valuer(coins_change[i].denom),
                          coins_change[i].count);
                }
             }
          }
       } else {
          for (i = 0; i < NUM_DENOMS; i++) {
-            remove_coin(system->cash_register,
-                        denom_valuer(coins_change[i].denom),
-                        coins_taken[i].count);
+            remove_coin_denom(system->cash_register,
+                              coins_change[i].denom,
+                              coins_taken[i].count);
          }
          printf("Change could not be given. All money has been refunded \n");
          return FALSE;

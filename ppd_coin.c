@@ -34,7 +34,7 @@ void reset_coins_imp(struct ppd_system *system) {
 }
 
 
-BOOLEAN is_valid_denom(int denom) {
+BOOLEAN is_valid_denom(enum denomination denom) {
    int valid_denoms[NUM_DENOMS] = VALID_DENOMS, i;
    BOOLEAN is_valid = FALSE;
    for (i = 0; i < NUM_DENOMS; i++) {
@@ -52,8 +52,8 @@ struct price coins_to_price(int cents) {
    return return_val;
 }
 
-BOOLEAN remove_coin(struct coin cash_register[NUM_DENOMS], int value,
-                    int amount) {
+BOOLEAN remove_coin_val(struct coin cash_register[NUM_DENOMS], int value,
+                        int amount) {
    int i;
    enum denomination denom;
 
@@ -77,7 +77,8 @@ BOOLEAN remove_coin(struct coin cash_register[NUM_DENOMS], int value,
 
 }
 
-BOOLEAN add_coin(struct coin cash_register[NUM_DENOMS], int value, int amount) {
+BOOLEAN add_coin_val(struct coin cash_register[NUM_DENOMS], int value, int
+amount) {
    int i;
    enum denomination denom;
 
@@ -94,6 +95,59 @@ BOOLEAN add_coin(struct coin cash_register[NUM_DENOMS], int value, int amount) {
    printf("Register does not take that type of money\n");
    return FALSE;
 
+}
+
+BOOLEAN remove_coin_denom(struct coin cash_register[NUM_DENOMS], enum
+        denomination denom, int amount) {
+   int i;
+
+
+   for (i = 0; i < NUM_DENOMS; i++) {
+      if (cash_register[i].denom == denom &&
+          cash_register[i].count > 0) {
+         cash_register[i].count -= amount;
+         return TRUE;
+      } else if (cash_register[i].denom == denom &&
+                 cash_register[i].count == 0) {
+         printf("No change left to give\n");
+         return FALSE;
+      }
+   }
+
+   printf("Invalid denomination\n");
+   return FALSE;
+
+}
+
+BOOLEAN add_coin_denom(struct coin cash_register[NUM_DENOMS], enum
+        denomination denom, int amount) {
+   int i;
+
+   for (i = 0; i < NUM_DENOMS; i++) {
+      if (cash_register[i].denom == denom) {
+         cash_register[i].count += amount;
+         return TRUE;
+      }
+   }
+
+   printf("Register does not take that type of money\n");
+   return FALSE;
+
+}
+
+int count_coins(struct coin cash_register[NUM_DENOMS], enum denomination
+denom) {
+   int i;
+   if (cash_register[denom].denom == denom) {
+      return cash_register[denom].count;
+   } else {
+      for (i = 0; i < NUM_DENOMS; i++) {
+         if (cash_register[i].denom == denom) {
+            return cash_register[i].count;
+         }
+      }
+   }
+   return 0;
 }
 
 void display_coins_imp(struct ppd_system *system) {
@@ -116,7 +170,8 @@ void display_coins_imp(struct ppd_system *system) {
 
       padd_name = DISPLAY_LEFT_PADDING - num_places(value);
 
-      printf("%u %-*s | %5u\n", value, padd_name, name, coins[i].count);
+      printf("%u %-*s | %5u\n", value, padd_name, name,
+             count_coins(coins, coins[i].denom));
    }
 
    printf("Press %s to go back to menu", ENTER_COLOUR);
@@ -124,33 +179,46 @@ void display_coins_imp(struct ppd_system *system) {
    read_rest_of_line();
 }
 
-
+/** Calculates the change required for the coin amount (change_amount),
+ * using the change values in the ppd_system. The values are returned in the
+ * coin_change array.
+ */
 BOOLEAN calculate_change(struct coin change[NUM_DENOMS], int change_amount,
                          struct ppd_system *system) {
-   int i, useable_coin_count, denom_values[NUM_DENOMS] = VALID_DENOMS;
 
+   int useable_coin_count, denom_value;
+   enum denomination denom;
+   struct coin *coins;
 
+   coins = system->cash_register;
+/* Sets the change given to zero */
    void_balances(change);
 
+   /* While we still need to give people change, loop */
    while (change_amount != 0) {
+      /* At the start of each iteration, set the number of potential coins to
+       * zero
+       */
       useable_coin_count = 0;
-      for (i = 0; i < NUM_DENOMS; i++) {
-         if ((change_amount - denom_values[i]) >= 0) {
 
-            if (system->cash_register[i].count > 0) {
-               change_amount -= denom_values[i];
-               change[i].count++;
-               system->cash_register[i].count--;
-               break;
-            } else {
+      /* Loop through denoms to find the first one that is valid*/
+      for (denom = NUM_DENOMS - 1; denom > 0; denom--) {
+         denom_value = denom_valuer(denom);
+
+         if ((change_amount - denom_value) >= 0) {
+            if (count_coins(coins, denom) > 0) {
                useable_coin_count++;
+               change_amount -= denom_value;
+               add_coin_denom(change, denom, 1);
+               remove_coin_denom(coins, denom, 1);
+               break;
             }
          }
 
       }
       if (useable_coin_count == 0) {
-         for (i = 0; i < NUM_DENOMS; i++) {
-            system->cash_register[i].count += change[i].count;
+         for (denom = 0; denom < NUM_DENOMS; denom++) {
+            add_coin_denom(coins, denom, count_coins(change, denom));
          }
          return FALSE;
       }
@@ -181,14 +249,15 @@ enum denom_type type_of_denom(unsigned int *unit_value) {
 BOOLEAN save_coins(struct ppd_system *system) {
    FILE *coin_file = NULL;
    int i;
+   struct coin *coins;
+   coins = system->cash_register;
    if (system->coin_from_file) {
       rename_file(system->coin_file_name, FALSE);
       coin_file = fopen(system->coin_file_name, "w");
       if (coin_file != NULL) {
          for (i = 0; i < NUM_DENOMS; i++) {
             fprintf(coin_file, "%d,%u\n", denom_valuer
-                            (system->cash_register[i].denom),
-                    system->cash_register[i].count);
+                    (coins[i].denom), coins[i].count);
          }
          fclose(coin_file);
          return TRUE;
