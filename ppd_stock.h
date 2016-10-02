@@ -191,6 +191,8 @@ BOOLEAN next_node(struct ppd_node **node);
 
 BOOLEAN init_node(struct ppd_node **node, struct ppd_system *system);
 
+BOOLEAN is_valid_id(char *id, struct ppd_system *system);
+
 #endif
 
 

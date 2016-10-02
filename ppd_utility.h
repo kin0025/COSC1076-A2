@@ -88,4 +88,6 @@ BOOLEAN rename_file(const char *name, BOOLEAN reverse);
 
 int count_delims(char *delim, char *string);
 
+BOOLEAN print_error_message(char *field_type, int line_number, const char
+*file_name);
 #endif

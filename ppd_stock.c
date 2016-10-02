@@ -299,3 +299,30 @@ BOOLEAN next_node(struct ppd_node **node) {
       return FALSE;
    }
 }
+
+BOOLEAN is_valid_id(char *id, struct ppd_system *system) {
+   int i;
+   struct ppd_node *node = NULL;
+   if (strlen(id) != IDLEN) {
+      return FALSE;
+   }
+   if (id[0] != 'I') {
+      return FALSE;
+   }
+   for (i = 1; i < IDLEN; i++) {
+      if (id[i] < '0' || id[i] > '9') {
+         return FALSE;
+      }
+   }
+   if (init_node(&node, system)) {
+      do {
+         if (strcmp(node->data->id, id) == 0) {
+            return FALSE;
+         }
+
+      } while (next_node(&node));
+
+
+   }
+   return TRUE;
+}

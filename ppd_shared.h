@@ -31,10 +31,10 @@ typedef enum truefalse {
 #if defined(__linux__) || defined(__unix__)
 
 #define ENTER_COLOUR "\e[93menter\e[0m"
-#define F_LIGHT_YELLOW "\e[93m"
+#define F_LIGHT_YELLOW "\e[33m"
 #define F_GREEN "\e[32m"
-#define F_LIGHT_GREEN "\e[92m"
-#define F_CYAN "\e[97m"
+#define F_LIGHT_GREEN "\e[32m"
+#define F_CYAN "\e[36m"
 #define F_BLACK "\e[30m"
 
 #define B_GREEN "\e[42m"

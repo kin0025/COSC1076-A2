@@ -1,4 +1,0 @@
-#!/bin/sh
-alias grep="grep --color=auto"
-grep -Hn [2-9] $@ | grep -v define
-

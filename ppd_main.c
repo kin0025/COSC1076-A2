@@ -104,7 +104,8 @@ int main(int argc, char **argv) {
 
       no_error = menu_choice(&system);
       if (!no_error) {
-         printf("The previous choice did not complete successfully. Try again.\n");
+         printf("The previous choice did not complete successfully. "
+                        "Try again.\n");
       }
       if (menu_choice == &save_system && no_error == TRUE) {
          keep_running = FALSE;

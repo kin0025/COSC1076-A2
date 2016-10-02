@@ -60,7 +60,7 @@ BOOLEAN load_stock(struct ppd_system *system, const char *filename) {
    FILE *data_file = NULL;
    char *token = NULL, *price, current_line[FILE_LINE_LEN + EXTRACHARS];
    struct ppd_stock stock_item;
-   int onhand;
+   int onhand, line_number = 0;
    BOOLEAN no_error, stock_added;
 
 
@@ -74,52 +74,89 @@ BOOLEAN load_stock(struct ppd_system *system, const char *filename) {
 
    while (read_file_input(current_line, FILE_LINE_LEN, data_file) &&
           !feof(data_file)) {
+      line_number++;
       no_error = TRUE;
       if (count_delims(DATA_DELIMITER, current_line) == NUMBER_STOCK_DELIMS) {
          /* Read the first token */
          token = strtok(current_line, DATA_DELIMITER);
+         if (token == NULL) {
+            fclose(data_file);
 
+            return print_error_message("ID", line_number,
+                                       system->stock_file_name);
+         }
          /* Set the ID to the first token. Length checking is performed*/
-         if (strlen(token) == IDLEN) {
+         if (is_valid_id(token, system)) {
             strcpy(stock_item.id, token);
          } else {
-            printf("Invalid ID when loading: %s . Item was not added\n", token);
+            fclose(data_file);
+
+            return print_error_message("ID", line_number,
+                                       system->stock_file_name);
             continue;
          }
          token = strtok(NULL, DATA_DELIMITER);
+         if (token == NULL) {
+            fclose(data_file);
 
+            return print_error_message("Name", line_number,
+                                       system->stock_file_name);
+         }
          if (strlen(token) <= NAMELEN) {
             strcpy(stock_item.name, token);
          } else {
-            printf("Invalid Name when loading: %s . Item was not added\n",
-                   token);
+            fclose(data_file);
+
+            return print_error_message("Name", line_number,
+                                       system->stock_file_name);
             continue;
 
          }
 
          token = strtok(NULL, DATA_DELIMITER);
+         if (token == NULL) {
+            fclose(data_file);
 
+            return print_error_message("Description", line_number,
+                                       system->stock_file_name);
+         }
          if (strlen(token) <= DESCLEN) {
             strcpy(stock_item.desc, token);
          } else {
-            printf("Invalid Description when loading: %s . Item was not added\n",
-                   token);
+            fclose(data_file);
+
+            return print_error_message("Description", line_number,
+                                       system->stock_file_name);
             continue;
          }
 
          price = strtok(NULL, DATA_DELIMITER);
+         if (price == NULL) {
+            fclose(data_file);
+
+            return print_error_message("Price", line_number,
+                                       system->stock_file_name);
+         }
 
          /*This has to go before the string to price, as strtok is not
           * reentrant, and string to price uses it */
          token = strtok(NULL, DATA_DELIMITER);
+         if (token == NULL) {
+            fclose(data_file);
+
+            return print_error_message("Stock Quantity", line_number,
+                                       system->stock_file_name);
+         }
          no_error = to_int(token, &onhand);
 
          /* Check that the integer conversion went successfully */
          if (onhand < 0) {
             no_error = FALSE;
          } else if (!no_error) {
-            printf("Onhand was not in correct integer format. The item will not"
-                           " be added.\n");
+            fclose(data_file);
+
+            return print_error_message("Stock Quantity", line_number,
+                                       system->stock_file_name);
             continue;
          } else {
             stock_item.on_hand = onhand;
@@ -128,8 +165,13 @@ BOOLEAN load_stock(struct ppd_system *system, const char *filename) {
          no_error = string_to_price(&(stock_item.price), price);
 
          if (!no_error) {
-            printf("Price conversion failed. Item was not added.\n");
+            fclose(data_file);
+
+            return print_error_message("Price", line_number,
+                                       system->stock_file_name);
          }
+
+
 
 /*
       print_stock(stock_item);
@@ -140,14 +182,21 @@ BOOLEAN load_stock(struct ppd_system *system, const char *filename) {
             if (!stock_added) {
                printf("Error encountered and stock could not be added. Please "
                               "try again, or check your file syntax.\n");
-               /*return FALSE;*/
+               fclose(data_file);
+               return FALSE;
             }
          }
       } else {
-         printf("Line has wrong number of fields \n%s", current_line);
+         printf("Line %d has wrong number of fields:  %s\n",
+                line_number, current_line);
+         fclose(data_file);
+         return FALSE;
       }
    }
-
+   if (!feof(data_file)) {
+      fclose(data_file);
+      return FALSE;
+   }
    fclose(data_file);
 
    /*
@@ -165,37 +214,76 @@ BOOLEAN load_stock(struct ppd_system *system, const char *filename) {
 BOOLEAN load_coins(struct ppd_system *system, const char *filename) {
    FILE *coin_file;
    char current_line[COIN_LINE_LEN + EXTRACHARS], *token;
-   int denom_value, amount;
+   int denom_value, amount, line_number = 0;
 
    void_balances(system->cash_register);
 
    if (system->coin_from_file == TRUE) {
       coin_file = fopen(system->coin_file_name, "r");
       if (coin_file != NULL) {
-         while (!feof(coin_file)) {
-            while (read_file_input(current_line, COIN_LINE_LEN, coin_file) &&
-                   !feof(coin_file)) {
-               if (count_delims(COIN_DELIM, current_line) == 1) {
-                  token = strtok(current_line, COIN_DELIM);
-                  to_int(token, &denom_value);
-                  token = strtok(NULL, COIN_DELIM);
-                  to_int(token, &amount);
-                  add_coin_val(system->cash_register, denom_value, amount);
-               } else {
-                  printf("Wrong number of fields in line: %s\nDisabling coin "
-                                 "system.\n", current_line);
-                  system->coin_from_file = FALSE;
-                  return FALSE;
+
+         while (!feof(coin_file) && read_file_input(current_line, COIN_LINE_LEN,
+                                                    coin_file)) {
+            line_number++;
+
+            if (count_delims(COIN_DELIM, current_line) == 1) {
+               token = strtok(current_line, COIN_DELIM);
+               if (token == NULL) {
+                  fclose(coin_file);
+                  return print_error_message("Coin Type", line_number,
+                                             system->coin_file_name);
                }
 
-            }
-         }
+               if (!to_int(token, &denom_value) ||
+                   !is_valid_value(denom_value)) {
+                  fclose(coin_file);
+                  return print_error_message("Coin Type", line_number,
+                                             system->coin_file_name);
+               }
+               token = strtok(NULL, COIN_DELIM);
+               if (token == NULL) {
+                  fclose(coin_file);
+                  return print_error_message("Coin Quantity", line_number,
+                                             system->coin_file_name);
+               }
 
+               if (!to_int(token, &amount) || amount < 0) {
+                  fclose(coin_file);
+                  return print_error_message("Coin Quantity", line_number,
+                                             system->coin_file_name);
+               }
+               if (count_coins(system->cash_register, value_to_denom
+                       (denom_value)) != 0) {
+                  fclose(coin_file);
+                  return print_error_message("Coin: duplicate - already added",
+                                             line_number,
+                                             system->coin_file_name);
+
+               }
+
+               if (!add_coin_val(system->cash_register, denom_value, amount)) {
+                  fclose(coin_file);
+                  printf("Coin adding on line %d failed. Try loading again, "
+                                 "and check file syntax", line_number);
+               }
+            } else {
+               system->coin_from_file = FALSE;
+               fclose(coin_file);
+               return print_error_message("Number of fields",
+                                          line_number,
+                                          system->coin_file_name);
+            }
+
+         }
+         if (!feof(coin_file)) {
+            fclose(coin_file);
+
+            return FALSE;
+         }
          fclose(coin_file);
+
       } else {
-         printf("Invalid coin file. No coins were loaded. File will be used "
-                        "for saving"
-                        "\n");
+         printf("Invalid coin file. No coins were loaded.\n");
          return FALSE;
       }
    }
@@ -236,6 +324,7 @@ BOOLEAN read_file_input(char *buffer, int length, FILE *file) {
          read_rest_of_file_line(file);
          printf("One of your lines in the file is longer then %d characters, "
                         "and has been discarded.\n", length);
+         return FALSE;
       } else {
          overflow = FALSE;
       }
@@ -329,13 +418,9 @@ BOOLEAN to_int(char *input, int *output) {
    *output = (int) strtol(input, &ptr, BASE);
 
    /* Check that the integer conversion went successfully */
-   if (*output == -1 || ptr == input) {
-      printf("The input was not a parsable number: %s\n", input);
+   if (*output == -1 || ptr == input || strlen(ptr) != 0) {
       no_error = FALSE;
-   } else if (strlen(ptr) != 0) {
-      printf("There was more than just a number entered, please try "
-                     "again.\n");
-      no_error = FALSE;
+
    }
    return no_error;
 }
@@ -409,4 +494,13 @@ int count_delims(char *delim, char *string) {
       return 1 + count_delims(delim, ++string);
    }
    return count_delims(delim, ++string);
+}
+
+BOOLEAN
+print_error_message(char *field_type, int line_number, const char *file_name) {
+   printf("Invalid %s%s%s when loading line %s%d%s in file %s. Item was not "
+                  "added\n",
+          F_CYAN, field_type, COLOUR_RESET, F_CYAN, line_number, COLOUR_RESET,
+          file_name);
+   return FALSE;
 }
