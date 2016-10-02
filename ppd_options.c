@@ -170,9 +170,8 @@ BOOLEAN purchase_item(struct ppd_system *system) {
    amount = coins_to_price(cents_due);
 
    if (calculate_change(coins_change, cents_due, system)) {
-      printf("Here is your %s, and $%u.%2.2u change:", item->name,
-             amount.dollars,
-             amount.cents);
+      printf("Here is your %s%s%s, and $%u.%2.2u change:", F_CYAN, item->name,
+             COLOUR_RESET, amount.dollars, amount.cents);
       item->on_hand--;
       for (i = 0; i < NUM_DENOMS; i++) {
          if (coins_change[i].count > 0) {
@@ -197,12 +196,11 @@ BOOLEAN purchase_item(struct ppd_system *system) {
                            coins_taken[i].count);
       }
       printf("Change could not be given. All money has been refunded. "
-                     "Please try again with exact change, or different "
-                     "coins. "
-                     "\n");
+                     "Please try again with exact change, or different coins"
+                     ".\n");
       return FALSE;
    }
-   printf("Please come back soon\n");
+   printf("\nPlease come back soon\n");
    return TRUE;
 }
 
@@ -277,7 +275,8 @@ BOOLEAN add_item(struct ppd_system *system) {
    do {
       if (!works) {
          printf("Wrong format. Cents must be less than 100 and divisible by "
-                        "%d Please try again: ", MINUMUM_DENOM);
+                        "%d Please try again. Dollars must be less than 100: ",
+                MINUMUM_DENOM);
       }
       works = read_user_input(temp_price, COSTLEN);
       if (!works) {
