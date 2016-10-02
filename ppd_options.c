@@ -35,17 +35,27 @@ BOOLEAN display_items(struct ppd_system *system) {
    BOOLEAN is_node;
 
    printf("\n\nItems:\n");
+
+   /* Get the length of the longest name for formatting. All other input is
+    * always shorter then the description on the top, so does not need to be
+    * dynamically scaled */
    name_len = get_largest_name(system);
 
+   /* Print the title bar */
    printf("%-5s|%-*s|%-9s|%-5s\n", "ID", name_len, "Name",
           "Available", "Price");
+
+   /* Scale the divider based on the length of the table */
    for (i = 0; i < name_len; i++) {
       printf("=");
    }
    printf("=======================\n");
 
+   /* Init our node, and check that it worked */
    is_node = init_node(&current, system);
    if (is_node) {
+      /* If the node initialised, there is at least one item. Print the first
+       * item, and as long as there are more items keep going */
       do {
          item = current->data;
 
@@ -54,10 +64,13 @@ BOOLEAN display_items(struct ppd_system *system) {
 
       } while (next_node(&current));
    } else {
+      /* If initialisation failed, there were no items in the list :( Tell
+       * the user */
       printf("No items in inventory \n");
    }
+
    printf("Press %s to go back to menu", ENTER_COLOUR);
-   /* Used to require an Enter */
+   /* Used to require an enter / EOL*/
    read_rest_of_line();
 
    return TRUE;
@@ -71,27 +84,32 @@ BOOLEAN display_items(struct ppd_system *system) {
 BOOLEAN purchase_item(struct ppd_system *system) {
    char id[IDLEN + 1];
    struct ppd_stock *item = NULL;
-   int cents_paid, cents_due, i;
-   BOOLEAN no_quit, valid_denom, coins_active;
+   int cents_paid, cents_due, i, coins_left;
+   unsigned int coin_value;
+   BOOLEAN no_quit, valid_denom;
    struct price amount;
    struct ppd_node *node = NULL;
    struct coin coins_taken[NUM_DENOMS], coins_change[NUM_DENOMS];
 
-   coins_active = system->coin_from_file;
 
-   if (coins_active) {
-      void_balances(coins_taken);
-      void_balances(coins_change);
-   }
+   void_balances(coins_taken);
+   void_balances(coins_change);
+
+   /* If there are no items, quit, and tell the user why. */
    no_quit = init_node(&node, system);
    if (!no_quit) {
+      printf("There are no items in inventory to purchase. Sorry!\n");
       return FALSE;
    }
 
+   /* Read the ID that the user wants to purchase */
    printf("Purchase Item\n-------------\nEnter the id of the item you wish to"
                   " purchase:");
    no_quit = read_user_input(id, IDLEN);
    if (!no_quit) {
+      printf("Returning to menu\n");
+      /* As we are not quitting due to an error, instead due to user choice,
+       * return true */
       return TRUE;
    }
    item = find_id(node, id)->data;
@@ -99,6 +117,9 @@ BOOLEAN purchase_item(struct ppd_system *system) {
       printf("ID not found. Please try again:");
       no_quit = read_user_input(id, IDLEN);
       if (!no_quit) {
+         printf("Returning to menu\n");
+         /* As we are not quitting due to an error, instead due to user choice,
+      * return true */
          return TRUE;
       }
       item = find_id(node, id)->data;
@@ -107,6 +128,13 @@ BOOLEAN purchase_item(struct ppd_system *system) {
       printf("The item you have selected is out of stock.\n");
       return TRUE;
    }
+
+   no_quit = price_to_int(&item->price, &cents_due);
+   if (!no_quit) {
+      printf("Invalid Price. Returning to menu\n");
+      return FALSE;
+   }
+
    printf("You have selected %s: %s\nThis will cost you $%2u.%-2.2u\n",
           item->name,
           item->desc, item->price.dollars, item->price.cents);
@@ -114,11 +142,6 @@ BOOLEAN purchase_item(struct ppd_system *system) {
    printf("Please type the value of each coin or note in cents or press %s "
                   "on a new empty line to cancel purchase.\n", ENTER_COLOUR);
 
-   no_quit = price_to_int(&item->price, &cents_due);
-   if (!no_quit) {
-      printf("Invalid Price. Returning to menu\n");
-      return FALSE;
-   }
 
    while (cents_due > 0) {
       do {
@@ -129,13 +152,12 @@ BOOLEAN purchase_item(struct ppd_system *system) {
             return TRUE;
          }
 
-         valid_denom = is_valid_denom(cents_paid);
+         valid_denom = is_valid_value(cents_paid);
 
 
          if (!valid_denom) {
             printf("Was not a valid denomination of money \n");
-         }
-         if (coins_active) {
+         } else {
             add_coin_val(system->cash_register, cents_paid, 1);
             add_coin_val(coins_taken, cents_paid, 1);
          }
@@ -148,36 +170,39 @@ BOOLEAN purchase_item(struct ppd_system *system) {
    amount = coins_to_price(cents_due);
 
    if (calculate_change(coins_change, cents_due, system)) {
-         printf("Here is your %s, and $%u.%2.2u change\n", item->name,
-                amount.dollars,
-                amount.cents);
-         item->on_hand--;
-         for (i = 0; i < NUM_DENOMS; i++) {
-            if (coins_change[i].count > 0) {
-               remove_coin_denom(system->cash_register,
-                                 coins_change[i].denom,
-                                 coins_change->count);
-
-               if (type_of_denom(&coins_change[i].count) == DOLLARS) {
-                  printf("|$%u*%u|", denom_valuer(coins_change[i].denom) /
-                                     CENTS_IN_DOLLAR,
-                         coins_change[i].count);
+      printf("Here is your %s, and $%u.%2.2u change:", item->name,
+             amount.dollars,
+             amount.cents);
+      item->on_hand--;
+      for (i = 0; i < NUM_DENOMS; i++) {
+         if (coins_change[i].count > 0) {
+            remove_coin_denom(system->cash_register,
+                              coins_change[i].denom,
+                              coins_change->count);
+            for (coins_left = 0; coins_left < coins_change[i].count;
+                 coins_left++) {
+               coin_value = denom_valuer(coins_change[i].denom);
+               if (type_of_denom(&coin_value) == DOLLARS) {
+                  printf("$%u ", coin_value);
                } else {
-                  printf("|%uc*%u|", denom_valuer(coins_change[i].denom),
-                         coins_change[i].count);
+                  printf("%uc ", coin_value);
                }
             }
          }
-      } else {
-         for (i = 0; i < NUM_DENOMS; i++) {
-            remove_coin_denom(system->cash_register,
-                              coins_change[i].denom,
-                              coins_taken[i].count);
-         }
-         printf("Change could not be given. All money has been refunded \n");
-         return FALSE;
       }
-
+   } else {
+      for (i = 0; i < NUM_DENOMS; i++) {
+         remove_coin_denom(system->cash_register,
+                           coins_change[i].denom,
+                           coins_taken[i].count);
+      }
+      printf("Change could not be given. All money has been refunded. "
+                     "Please try again with exact change, or different "
+                     "coins. "
+                     "\n");
+      return FALSE;
+   }
+   printf("Please come back soon\n");
    return TRUE;
 }
 

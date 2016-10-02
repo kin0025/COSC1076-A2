@@ -17,10 +17,12 @@
  * @file ppd_coin.c implement functions here for managing coins in the
  * "cash register" contained in the @ref ppd_system struct.
  **/
+
+/** Voids all the balances and sets the denoms to descending values */
 BOOLEAN void_balances(struct coin cash_register[NUM_DENOMS]) {
-   int i;
+   enum denomination i;
    for (i = 0; i < NUM_DENOMS; i++) {
-      cash_register[i].denom = i;
+      cash_register[i].denom = NUM_DENOMS - 1 - i;
       cash_register[i].count = 0;
    }
    return TRUE;
@@ -35,14 +37,18 @@ void reset_coins_imp(struct ppd_system *system) {
 
 
 BOOLEAN is_valid_denom(enum denomination denom) {
-   int valid_denoms[NUM_DENOMS] = VALID_DENOMS, i;
-   BOOLEAN is_valid = FALSE;
-   for (i = 0; i < NUM_DENOMS; i++) {
-      if (valid_denoms[i] == denom) {
-         is_valid = TRUE;
-      }
+   printf("%d %d \n", denom, denom_valuer(denom));
+   if (denom_valuer(denom) != -1) {
+      return TRUE;
    }
-   return is_valid;
+   return FALSE;
+}
+
+BOOLEAN is_valid_value(int value) {
+   if (value_to_denom(value) != -1) {
+      return TRUE;
+   }
+   return FALSE;
 }
 
 struct price coins_to_price(int cents) {
@@ -81,7 +87,6 @@ BOOLEAN add_coin_val(struct coin cash_register[NUM_DENOMS], int value, int
 amount) {
    int i;
    enum denomination denom;
-
    denom = value_to_denom(value);
 
    if (denom != -1) {
@@ -109,7 +114,6 @@ BOOLEAN remove_coin_denom(struct coin cash_register[NUM_DENOMS], enum
          return TRUE;
       } else if (cash_register[i].denom == denom &&
                  cash_register[i].count == 0) {
-         printf("No change left to give\n");
          return FALSE;
       }
    }
@@ -206,11 +210,10 @@ BOOLEAN calculate_change(struct coin change[NUM_DENOMS], int change_amount,
          denom_value = denom_valuer(denom);
 
          if ((change_amount - denom_value) >= 0) {
-            if (count_coins(coins, denom) > 0) {
+            if (remove_coin_denom(coins, denom, 1)) {
                useable_coin_count++;
                change_amount -= denom_value;
                add_coin_denom(change, denom, 1);
-               remove_coin_denom(coins, denom, 1);
                break;
             }
          }
@@ -238,7 +241,7 @@ int num_places(int n) {
 }
 
 enum denom_type type_of_denom(unsigned int *unit_value) {
-   if (*unit_value > CENTS_IN_DOLLAR) {
+   if (*unit_value >= CENTS_IN_DOLLAR) {
       *unit_value = (int) *unit_value / CENTS_IN_DOLLAR;
       return DOLLARS;
    } else {
@@ -288,3 +291,11 @@ enum denomination value_to_denom(int value) {
    }
    return -1;
 }
+
+/*
+BOOLEAN next_denom(struct coin **coin_pos) {
+   struct coin *coins = *coin_pos;
+   if (coins->denom++ == (coins++)->denom) { return TRUE; } else return FALSE;
+
+
+}*/

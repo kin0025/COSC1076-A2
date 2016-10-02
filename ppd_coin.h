@@ -71,7 +71,7 @@ BOOLEAN void_balances(struct coin cash_register[NUM_DENOMS]);
 
 struct price coins_to_price(int cents);
 
-BOOLEAN is_valid_denom(enum denomination denom);
+BOOLEAN is_valid_value(int value);
 
 
 BOOLEAN add_coin_val(struct coin cash_register[NUM_DENOMS], int value, int

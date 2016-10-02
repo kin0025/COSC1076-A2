@@ -347,7 +347,7 @@ BOOLEAN string_to_price(struct price *price_amount, char *price_input) {
 
    ptr = strtok(price_input, PRICEDELIM);
    int_success = to_int(ptr, &amount);
-   if (ptr != NULL && int_success) {
+   if (ptr != NULL && int_success && amount < MAX_DOLLARS_PRICE) {
       price_amount->dollars = amount;
    } else {
       return FALSE;
