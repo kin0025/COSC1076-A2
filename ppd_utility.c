@@ -498,9 +498,9 @@ int count_delims(char *delim, char *string) {
 
 BOOLEAN
 print_error_message(char *field_type, int line_number, const char *file_name) {
-   printf("Invalid %s%s%s when loading line %s%d%s in file %s. Item was not "
-                  "added\n",
-          F_CYAN, field_type, COLOUR_RESET, F_CYAN, line_number, COLOUR_RESET,
-          file_name);
+   fprintf(stderr, "Invalid %s%s%s when loading line %s%d%s in file %s. Item "
+                   "was not added\n",
+           F_CYAN, field_type, COLOUR_RESET, F_CYAN, line_number, COLOUR_RESET,
+           file_name);
    return FALSE;
 }
