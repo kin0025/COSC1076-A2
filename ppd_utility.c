@@ -90,7 +90,6 @@ BOOLEAN load_stock(struct ppd_system *system, const char *filename) {
          } else {
             return file_error_message("ID", line_number,
                                       system->stock_file_name, data_file);
-            continue;
          }
          token = strtok(NULL, DATA_DELIMITER);
          if (token == NULL) {
@@ -102,7 +101,6 @@ BOOLEAN load_stock(struct ppd_system *system, const char *filename) {
          } else {
             return file_error_message("Name", line_number,
                                       system->stock_file_name, data_file);
-            continue;
 
          }
 
@@ -116,7 +114,6 @@ BOOLEAN load_stock(struct ppd_system *system, const char *filename) {
          } else {
             return file_error_message("Description", line_number,
                                       system->stock_file_name, data_file);
-            continue;
          }
 
          price = strtok(NULL, DATA_DELIMITER);
@@ -161,15 +158,14 @@ BOOLEAN load_stock(struct ppd_system *system, const char *filename) {
       print_stock(stock_item);
 */
 
-         if (no_error) {
-            stock_added = add_stock(stock_item, system);
-            if (!stock_added) {
-               printf("Error encountered and stock could not be added. Please "
-                              "try again, or check your file syntax.\n");
-               fclose(data_file);
-               return FALSE;
-            }
+         stock_added = add_stock(stock_item, system);
+         if (!stock_added) {
+            printf("Error encountered and stock could not be added. Please "
+                           "try again, or check your file syntax.\n");
+            fclose(data_file);
+            return FALSE;
          }
+
       } else {
          printf("Line %d has wrong number of fields:  %s\n",
                 line_number, current_line);
@@ -469,8 +465,10 @@ BOOLEAN price_to_int(struct price *price, int *cents) {
 BOOLEAN rename_file(const char *name, BOOLEAN reverse) {
    char *file_bak = NULL;
    BOOLEAN worked;
-
-   file_bak = malloc(sizeof(char) * (strlen(name) + 3));
+   size_t size;
+   size = (sizeof(char) * (strlen(name) + 3));
+   printf("%zu\n", size);
+   file_bak = malloc(size);
    sprintf(file_bak, "%s.bak", name);
 
    if (reverse) {

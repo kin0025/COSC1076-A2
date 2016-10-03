@@ -47,7 +47,7 @@ fi
 
 echo "[31m =====================================WorkingProgram=======================================================[0m"
 
-./ppd stock.dat coins.dat
+valgrind --leak-check=full --show-reachable=yes ./ppd stock.dat coins.dat
 
 exit_code=$?
 if [ "$exit_code" -ne 0 ]; then

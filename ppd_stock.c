@@ -75,7 +75,7 @@ BOOLEAN remove_stock(struct ppd_system *system, char id[IDLEN + 1]) {
 
    current = system->item_list->head;
 
-   while (current != NULL && !stock_removed) {
+   do {
       if (strcmp(current->data->id, id) == 0) {
          if (i == 0) {
             system->item_list->head = current->next;
@@ -83,15 +83,12 @@ BOOLEAN remove_stock(struct ppd_system *system, char id[IDLEN + 1]) {
             last->next = current->next;
          }
          del_node(current);
-         stock_removed = TRUE;
+         system->item_list->count--;
+         return TRUE;
       }
       last = current;
-      current = current->next;
       i++;
-   }
-   if (stock_removed) {
-      system->item_list->count--;
-   }
+   } while (next_node(&current));
    return stock_removed;
 }
 
@@ -151,7 +148,7 @@ struct ppd_node *find_id(struct ppd_node *node, char *id) {
 
 int get_next_id(struct ppd_system *system) {
    int max_id = 1, i, current_id, x;
-   char id[IDLEN];
+   char id[IDLEN + EXTRACHARS] = "0";
    struct ppd_node *current = NULL;
    BOOLEAN int_success, not_a_zero_found;
 
@@ -187,9 +184,9 @@ int get_next_id(struct ppd_system *system) {
 
 struct ppd_node *create_node(void) {
    struct ppd_node *returnVal = malloc(sizeof(struct ppd_node));
-   if (returnVal == NULL)
+   if (returnVal == NULL) {
       return NULL;
-
+   }
    returnVal->data = malloc(sizeof(struct ppd_stock));
    if (returnVal->data == NULL) {
       free(returnVal);
@@ -292,6 +289,9 @@ BOOLEAN init_node(struct ppd_node **node, struct ppd_system *system) {
 }
 
 BOOLEAN next_node(struct ppd_node **node) {
+   if (*node == NULL) {
+      return FALSE;
+   }
    if ((*node)->next != NULL) {
       *node = (*node)->next;
       return TRUE;
