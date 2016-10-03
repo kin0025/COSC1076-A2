@@ -58,7 +58,6 @@ BOOLEAN display_items(struct ppd_system *system) {
        * item, and as long as there are more items keep going */
       do {
          item = current->data;
-
          printf("%-5s|%-*s| %-8u|$%2u.%-2.2u\n", item->id, name_len, item->name,
                 item->on_hand, item->price.dollars, item->price.cents);
 
@@ -112,6 +111,8 @@ BOOLEAN purchase_item(struct ppd_system *system) {
        * return true */
       return TRUE;
    }
+   /* Find the item, and if it can't be found reprompt for input until either
+    * the user elects to quit, or we find a valid item */
    item = find_id(node, id)->data;
    while (item == NULL) {
       printf("ID not found. Please try again:");
@@ -124,17 +125,22 @@ BOOLEAN purchase_item(struct ppd_system *system) {
       }
       item = find_id(node, id)->data;
    }
+   /* If there is none of the item left return false */
    if (item->on_hand == 0) {
       printf("The item you have selected is out of stock.\n");
-      return TRUE;
+      return FALSE;
    }
 
+   /*
+    * Get the price of the item in cents
+    */
    no_quit = price_to_int(&item->price, &cents_due);
    if (!no_quit) {
       printf("Invalid Price. Returning to menu\n");
       return FALSE;
    }
 
+   /* Tell the user how much it will cost them */
    printf("You have selected %s: %s\nThis will cost you $%2u.%-2.2u\n",
           item->name,
           item->desc, item->price.dollars, item->price.cents);
@@ -143,7 +149,11 @@ BOOLEAN purchase_item(struct ppd_system *system) {
                   "on a new empty line to cancel purchase.\n", ENTER_COLOUR);
 
 
+   /* While there is still money left prompt the user for change input */
    while (cents_due > 0) {
+      /* Prompt the user for a valid denom and add it to the cash register.
+       * If it is invalid keep prompting until they quit or provide a valid one
+       */
       do {
          amount = coins_to_price(cents_due);
          printf("There is $%u.%2.2u left: ", amount.dollars, amount.cents);
@@ -162,13 +172,20 @@ BOOLEAN purchase_item(struct ppd_system *system) {
             add_coin_val(coins_taken, cents_paid, 1);
          }
       } while (!valid_denom);
-
+/* Subtract the cents paid once valid denom is input*/
       cents_due -= cents_paid;
 
    }
+   /* The remining cents due value is not the amount the cust has over paid
+    * by. Multiply by negative one to get the cents we have to return to the
+    * user */
    cents_due *= -1;
    amount = coins_to_price(cents_due);
 
+   /*
+    * If change is calculated successfully, print it to the user and modify
+    * the coin inventory accordingly.
+    */
    if (calculate_change(coins_change, cents_due, system)) {
       printf("Here is your %s%s%s, and $%u.%2.2u change:", F_CYAN, item->name,
              COLOUR_RESET, amount.dollars, amount.cents);
@@ -177,6 +194,7 @@ BOOLEAN purchase_item(struct ppd_system *system) {
          if (coins_change[i].count > 0) {
             remove_coin_denom(system->cash_register, coins_change[i].denom,
                               coins_change->count);
+            /* Print the coins */
             for (coins_left = 0; coins_left < coins_change[i].count;
                  coins_left++) {
                coin_value = denom_valuer(coins_change[i].denom);
@@ -188,7 +206,10 @@ BOOLEAN purchase_item(struct ppd_system *system) {
             }
          }
       }
-   } else {
+   }
+      /* If we couldn't calculate the coins return the coins to the customer
+       * and cancel the purchase */
+   else {
       for (i = 0; i < NUM_DENOMS; i++) {
          remove_coin_denom(system->cash_register,
                            coins_change[i].denom,
@@ -210,8 +231,11 @@ BOOLEAN purchase_item(struct ppd_system *system) {
  **/
 BOOLEAN save_system(struct ppd_system *system) {
    BOOLEAN no_error_stock, no_error_coin;
+
+   /* Save stock and check for errors */
    no_error_stock = save_stock(system);
 
+   /* save coins and check for errors */
    if (system->coin_from_file) {
       no_error_coin = save_coins(system);
 
@@ -271,6 +295,7 @@ BOOLEAN add_item(struct ppd_system *system) {
 
    printf("Please enter the cost of the item in the form dollars.cents:");
 
+   /* Prompt for price input until it is correct or false */
    do {
       if (!works) {
          printf("Wrong format. Cents must be less than 100 and divisible by "
@@ -284,6 +309,7 @@ BOOLEAN add_item(struct ppd_system *system) {
       works = string_to_price(&new_stock.price, temp_price);
    } while (!works);
 
+   /* Generate the next id, and check if we have maxed out the IDs */
    id = get_next_id(system);
    if (id <= 9999) {
       sprintf(new_stock.id, "I%4d", id);
@@ -293,6 +319,7 @@ BOOLEAN add_item(struct ppd_system *system) {
                      "MORE IDS ARE ALLOCATED\n", B_YELLOW, COLOUR_RESET);
    }
 
+   /* Replace all the spaces in the string with 0 */
    for (ptr = &new_stock.id[1]; *ptr == ' '; ptr++) {
       *ptr = '0';
    }
@@ -311,6 +338,7 @@ BOOLEAN remove_item(struct ppd_system *system) {
    char yes_no_input[YESNOLEN + EXTRACHARS], yes_no;
    struct ppd_node *node = NULL;
 
+   /* Init the list*/
    no_quit = init_node(&node, system);
    if (!no_quit) {
       return FALSE;
@@ -318,9 +346,10 @@ BOOLEAN remove_item(struct ppd_system *system) {
 
    printf("Remove Item\n-------------\nEnter the id of the item you wish to"
                   " remove:");
+
+   /* Get strng input for the ID until the user elects to quit or we find a
+    * valid one */
    no_quit = read_user_input(id, IDLEN);
-
-
    if (!no_quit) {
       return TRUE;
    }
@@ -333,12 +362,15 @@ BOOLEAN remove_item(struct ppd_system *system) {
       }
       item = find_id(node, id);
    }
+
+   /* Get a yes or no input for removbing the item */
    printf("Do you want to remove %s. You cannot undo this action. (Y/N)",
           item->data->name);
    no_quit = read_user_input(yes_no_input, YESNOLEN);
    if (!no_quit) {
       return TRUE;
    }
+   /* Get and validate the input */
    if (strlen(yes_no_input) != 2) {
       yes_no = tolower(yes_no_input[0]);
    }
@@ -352,13 +384,15 @@ BOOLEAN remove_item(struct ppd_system *system) {
       }
    }
 
+   /* If yes no is equal remove stock. if it fails, or the user chooses to quit
+    * or stock remove fails quit.*/
    if (yes_no == 'y') {
       if (remove_stock(system, id)) {
          printf("Removed Successfully\n");
          return TRUE;
       } else { return FALSE; }
    } else {
-      return FALSE;
+      return TRUE;
    }
 }
 
@@ -374,6 +408,7 @@ BOOLEAN reset_stock(struct ppd_system *system) {
    if (!no_error) {
       return FALSE;
    }
+   /* While there is another node in the list set it to default */
    while (next_node(&node)) {
       node->data->on_hand = DEFAULT_STOCK_LEVEL;
    }
@@ -388,6 +423,7 @@ BOOLEAN reset_stock(struct ppd_system *system) {
  **/
 BOOLEAN reset_coins(struct ppd_system *system) {
 
+   /* Reset the coins */
    reset_coins_imp(system);
    printf("Coin counts reset to %d.\n", DEFAULT_COIN_COUNT);
    return TRUE;

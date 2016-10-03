@@ -83,9 +83,10 @@ BOOLEAN reset_coins(struct ppd_system *);
 BOOLEAN display_coins(struct ppd_system *);
 
 
-
+/* Maximum length of a coin string for purchase*/
 #define COINLEN 5
 
+/** Length of a yes no string */
 #define YESNOLEN 1
 
 #endif

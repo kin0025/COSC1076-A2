@@ -23,11 +23,20 @@ typedef enum truefalse {
      **/
             TRUE
 } BOOLEAN;
-
+/**
+ * The maximum int length for input
+ */
 #define MAX_INT_LEN 5
+/**
+ * The number of extra characters at the end of a string
+ */
 #define EXTRACHARS 2
+/**
+ * The null ternimator character
+ */
 #define NULL_TERMINATOR '\0'
 
+/* Terminal colours only on linux */
 #if defined(__linux__) || defined(__unix__)
 
 #define ENTER_COLOUR "\e[93menter\e[0m"
