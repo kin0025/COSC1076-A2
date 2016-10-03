@@ -22,36 +22,17 @@
  **/
 void init_menu(struct menu_item *menu) {
    int i;
+   menu_function functions[NUM_MENU_ITEMS] = MENU_FUNCTIONS;
+   char *names[NUM_MENU_ITEMS] = MENU_NAMES;
+
+   /* Set the menu entries to NULL */
    for (i = 0; i < NUM_MENU_ITEMS; i++) {
       menu[i].function = NULL;
    }
-   if (NUM_MENU_ITEMS >= 9) {
-      strcpy(menu[0].name, "Display Items");
-      menu[0].function = &display_items;
-
-      strcpy(menu[1].name, "Purchase Items");
-      menu[1].function = &purchase_item;
-
-      strcpy(menu[2].name, "Save and Exit");
-      menu[2].function = &save_system;
-
-      strcpy(menu[3].name, "Add Item");
-      menu[3].function = &add_item;
-
-      strcpy(menu[4].name, "Remove Item");
-      menu[4].function = &remove_item;
-
-      strcpy(menu[5].name, "Display Coins");
-      menu[5].function = &display_coins;
-
-      strcpy(menu[6].name, "Reset Stock");
-      menu[6].function = &reset_stock;
-
-      strcpy(menu[7].name, "Reset Coins");
-      menu[7].function = &reset_coins;
-
-      strcpy(menu[8].name, "Abort Program");
-      menu[8].function = NULL;
+   /* Set the menu entries to their values */
+   for (i = 0; i < NUM_MENU_ITEMS; i++) {
+      strcpy(menu[i].name, names[i]);
+      menu[i].function = functions[i];
    }
 }
 
@@ -62,21 +43,25 @@ void init_menu(struct menu_item *menu) {
 menu_function get_menu_choice(struct menu_item *menu) {
    int i, choice;
    BOOLEAN quit = FALSE;
+   /* Print the menu*/
    printf("Main Menu:\n");
    for (i = 0; i < NUM_MENU_ITEMS; i++) {
-      if (i == 2) {
+      if (menu[i].function == &save_system) {
          printf("Administrator Menu:\n");
       }
       printf("%s%d.%s %s\n", F_LIGHT_GREEN, i + 1, COLOUR_RESET, menu[i].name);
 
    }
    i = 0;
+   /* Get the input (and validate) and return the function pointer contained in
+    * the array*/
    do {
       if (i == 0) {
          i++;
       } else {
          printf("Input must be between 1 and %d\n", NUM_MENU_ITEMS);
       }
+      /* Check the input validity */
       do {
          quit = read_int(&choice);
          /*if (!quit) {

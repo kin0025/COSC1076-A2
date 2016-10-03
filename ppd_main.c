@@ -69,12 +69,14 @@ int main(int argc, char **argv) {
    /* init the system */
    success = system_init(&system);
    if (!success) {
+      printf("Initialisation Failed\n");
       return EXIT_FAILURE;
    }
    /* load data */
    success = load_stock(&system, data_name);
 
    if (!success) {
+      printf("Stock loading failed\n");
       return EXIT_FAILURE;
    }
 
@@ -82,6 +84,7 @@ int main(int argc, char **argv) {
    success = load_coins(&system, system.coin_file_name);
 
    if (!success) {
+      printf("Coin loading failed\n");
       return EXIT_FAILURE;
    }
    /* test if everything has been initialised correctly */

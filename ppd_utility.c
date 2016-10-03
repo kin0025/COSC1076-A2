@@ -193,6 +193,17 @@ BOOLEAN load_stock(struct ppd_system *system, const char *filename) {
          return FALSE;
       }
    }
+   /* Checking for a final line that does not end with a new line. Will not
+    * be tokenised, so we current line will not have \0 added during
+    * tokenisation
+    */
+   if (strlen(current_line) > IDLEN) {
+      fclose(data_file);
+      printf("The last line of %s does not end in a new line, and may be "
+                     "indicative of file corruption. Loading will halt "
+                     "until file is fixed\n", system->stock_file_name);
+      return FALSE;
+   }
    if (!feof(data_file)) {
       fclose(data_file);
       return FALSE;
@@ -275,6 +286,14 @@ BOOLEAN load_coins(struct ppd_system *system, const char *filename) {
             }
 
          }
+         /* Checking for a non new line terinated file */
+         if (count_delims(COIN_DELIM, current_line) != 0) {
+            fclose(coin_file);
+            printf("The last line of %s does not end in a new line, and may be "
+                           "indicative of file corruption. Loading will halt "
+                           "until file is fixed\n", system->coin_file_name);
+            return FALSE;
+         }
          if (!feof(coin_file)) {
             fclose(coin_file);
 
@@ -322,12 +341,14 @@ BOOLEAN read_file_input(char *buffer, int length, FILE *file) {
          overflow = TRUE;
          /* Clear the overflow and prompt the user for input again */
          read_rest_of_file_line(file);
-         printf("One of your lines in the file is longer then %d characters, "
-                        "and has been discarded.\n", length);
+         printf("One of your lines in the file is longer then %d characters."
+                        "\n", length);
          return FALSE;
       } else {
          overflow = FALSE;
       }
+      if (buffer[0] == EOF) { return FALSE; }
+
    } while (overflow);
 
    /* Remove the EOL character from string */

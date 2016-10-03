@@ -24,18 +24,32 @@ struct ppd_system;
  **/
 #define MENU_NAME_LEN 50
 
-/* represents a function that can be selected from the list of 
- * menu_functions - creates a new type called a menu_function 
- */
-
+/**
+ * The number of items in the menu
+*/
 #define NUM_MENU_ITEMS 9
+/**
+ * The names of each menu item
+ */
+#define MENU_NAMES {"Display Items","Purchase Items","Save and Exit","Add "\
+"Item","Remove Item","Display Coins","Reset Stock","Reset Coins","Abort "\
+"Program"}
 
-typedef BOOLEAN (*menu_function)(struct ppd_system*);
+/**
+ * The functions called when each menu item is selected.
+ */
+#define MENU_FUNCTIONS {&display_items,&purchase_item,&save_system,&add_item,\
+&remove_item,&display_coins,&reset_stock,&reset_coins,NULL}
+
+/* represents a function that can be selected from the list of
+ * menu_functions - creates a new type called a menu_function
+ */
+typedef BOOLEAN (*menu_function)(struct ppd_system *);
+
 /**
  * represents a menu item to be displayed and executed in the program
  **/
-struct menu_item
-{
+struct menu_item {
     /**
      * the text to be displayed in the menu
      **/
@@ -59,7 +73,12 @@ struct menu_item
  * you are expected to write code that is maintainable which in this 
  * case means initialization in a loop.
  **/
-void init_menu( struct menu_item*);
+void init_menu(struct menu_item *);
 
-menu_function get_menu_choice(struct menu_item*);
+/**
+ * Prints all the options, returns a value and requests input.
+ * @return the menu function to run.
+ */
+menu_function get_menu_choice(struct menu_item *);
+
 #endif
