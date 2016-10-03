@@ -232,7 +232,7 @@ BOOLEAN purchase_item(struct ppd_system *system) {
  * @return true when a save succeeds and false when it does not
  **/
 BOOLEAN save_system(struct ppd_system *system) {
-   BOOLEAN no_error_stock, no_error_coin;
+   BOOLEAN no_error_stock, no_error_coin = TRUE;
 
    /* Save stock and check for errors */
    no_error_stock = save_stock(system);
