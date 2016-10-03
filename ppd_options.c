@@ -173,10 +173,9 @@ BOOLEAN purchase_item(struct ppd_system *system) {
       printf("Here is your %s%s%s, and $%u.%2.2u change:", F_CYAN, item->name,
              COLOUR_RESET, amount.dollars, amount.cents);
       item->on_hand--;
-      for (i = 0; i < NUM_DENOMS; i++) {
+      for (i = NUM_DENOMS - 1; i >= 0; i--) {
          if (coins_change[i].count > 0) {
-            remove_coin_denom(system->cash_register,
-                              coins_change[i].denom,
+            remove_coin_denom(system->cash_register, coins_change[i].denom,
                               coins_change->count);
             for (coins_left = 0; coins_left < coins_change[i].count;
                  coins_left++) {

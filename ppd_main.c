@@ -34,10 +34,10 @@ int main(int argc, char **argv) {
    menu_function menu_choice;
    struct menu_item menu[NUM_MENU_ITEMS];
    struct ppd_system system;
-
    system.coin_from_file = FALSE;
    system.coin_file_name = NULL;
    system.stock_file_name = NULL;
+
    /* validate command line arguments */
    switch (argc) {
       case 3:
@@ -77,8 +77,8 @@ int main(int argc, char **argv) {
    if (!success) {
       return EXIT_FAILURE;
    }
-   /*load_coins(system,); */
 
+   /*load_coins/init them*/
    success = load_coins(&system, system.coin_file_name);
 
    if (!success) {
@@ -90,6 +90,7 @@ int main(int argc, char **argv) {
       printf("Nothing was loaded from file. Check your input formatting and "
                      "file name.\n");
    }
+
    /* initialise the menu system */
    init_menu(menu);
    /* loop, asking for options from the menu */
@@ -97,6 +98,7 @@ int main(int argc, char **argv) {
       menu_choice = get_menu_choice(menu);
       /* run each option selected */
 
+      /* If they want to exit quit the loop*/
       if (menu_choice == NULL) {
          keep_running = FALSE;
          break;
@@ -113,6 +115,7 @@ int main(int argc, char **argv) {
       printf("\n\n=======================\n");
       /* until the user quits */
       if (!keep_running) {
+
          save_system(&system);
       }
    } while (keep_running);

@@ -412,7 +412,7 @@ BOOLEAN read_int(int *output) {
 }
 
 BOOLEAN to_int(char *input, int *output) {
-   char *ptr;
+   char *ptr = NULL;
    BOOLEAN no_error = TRUE;
    /* Convert the remaining to integer */
    *output = (int) strtol(input, &ptr, BASE);
@@ -426,7 +426,7 @@ BOOLEAN to_int(char *input, int *output) {
 }
 
 BOOLEAN string_to_price(struct price *price_amount, char *price_input) {
-   char *ptr;
+   char *ptr = NULL;
    int amount;
    BOOLEAN int_success;
 
@@ -468,7 +468,7 @@ BOOLEAN price_to_int(struct price *price, int *cents) {
 }
 
 BOOLEAN rename_file(const char *name, BOOLEAN reverse) {
-   char *file_bak;
+   char *file_bak = NULL;
    BOOLEAN worked;
 
    file_bak = malloc(sizeof(char) * (strlen(name) + 3));
