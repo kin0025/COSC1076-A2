@@ -139,7 +139,6 @@ BOOLEAN load_stock(struct ppd_system *system, const char *filename) {
 
             return file_error_message("Stock Quantity", line_number,
                                       system->stock_file_name, data_file);
-            continue;
          } else {
             stock_item.on_hand = onhand;
          }
