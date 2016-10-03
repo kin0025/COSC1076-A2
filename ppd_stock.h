@@ -175,7 +175,7 @@ int get_largest_name(struct ppd_system *system);
 
 int get_next_id(struct ppd_system *system);
 
-struct ppd_node *find_id(struct ppd_node *node, char *id);
+struct ppd_node *find_id(struct ppd_system *system, char *id);
 
 struct ppd_node *create_node(void);
 

@@ -62,6 +62,7 @@ BOOLEAN load_coins(struct ppd_system *, const char *);
 
 #define MAX_DOLLARS_PRICE 100
 
+#define EXTRA_BAK_CHARS 4
 /**
  * free all memory that has been allocated. If you are struggling to
  * find all your memory leaks, compile your program with the -g flag

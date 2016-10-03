@@ -465,8 +465,7 @@ BOOLEAN rename_file(const char *name, BOOLEAN reverse) {
    char *file_bak = NULL;
    BOOLEAN worked;
    size_t size;
-   size = (sizeof(char) * (strlen(name) + 3));
-   printf("%zu\n", size);
+   size = (sizeof(char) * (strlen(name) + EXTRA_BAK_CHARS + EXTRACHARS));
    file_bak = malloc(size);
    sprintf(file_bak, "%s.bak", name);
 

@@ -23,7 +23,6 @@ exit_code=$?
 if [ "$exit_code" -ne 1 ]; then
 	echo "[31mTest Failed[0m"
 fi
-
 ./ppd invalid_stock1.dat coins.dat
 exit_code=$?
 if [ "$exit_code" -ne 1 ]; then
@@ -47,7 +46,14 @@ fi
 
 echo "[31m =====================================WorkingProgram=======================================================[0m"
 
-valgrind --leak-check=full --show-reachable=yes ./ppd stock.dat coins.dat
+valgrind --leak-check=full --show-reachable=yes --log-file="requirement13a" ./ppd stock.dat coins.dat
+
+exit_code=$?
+if [ "$exit_code" -ne 0 ]; then
+	echo "[31mTest Failed[0m"
+fi
+
+valgrind --track-origins=yes --log-file="requirement13b" ./ppd stock.dat coins.dat
 
 exit_code=$?
 if [ "$exit_code" -ne 0 ]; then

@@ -133,16 +133,17 @@ int get_largest_name(struct ppd_system *system) {
    return longest_name;
 }
 
-struct ppd_node *find_id(struct ppd_node *node, char *id) {
-
-   if (node == NULL) {
-      return NULL;
-   }
-   if (strcmp(node->data->id, id) == 0) {
-      return node;
-   }
-   return find_id(node->next, id);
-
+struct ppd_node *find_id(struct ppd_system *system, char *id) {
+   struct ppd_node *node = system->item_list->head;
+   do {
+      if (node == NULL) {
+         return NULL;
+      }
+      if (strcmp(node->data->id, id) == 0) {
+         return node;
+      }
+   } while (next_node(&node));
+   return NULL;
 
 }
 
