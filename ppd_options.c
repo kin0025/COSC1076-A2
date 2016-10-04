@@ -324,7 +324,12 @@ BOOLEAN add_item(struct ppd_system *system) {
    for (ptr = &new_stock.id[1]; *ptr == ' '; ptr++) {
       *ptr = '0';
    }
-   return add_stock(new_stock, system);
+   if (add_stock(new_stock, system)) {
+      printf("Item added\n");
+      return TRUE;
+   } else {
+      return FALSE;
+   }
 }
 
 /**
@@ -334,7 +339,7 @@ BOOLEAN add_item(struct ppd_system *system) {
  **/
 BOOLEAN remove_item(struct ppd_system *system) {
    BOOLEAN no_quit;
-   struct ppd_node *item = NULL;
+   struct ppd_stock *item = NULL;
    char id[IDLEN + EXTRACHARS];
    char yes_no_input[YESNOLEN + EXTRACHARS], yes_no;
    struct ppd_node *node = NULL;

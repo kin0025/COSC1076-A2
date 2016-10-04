@@ -225,7 +225,7 @@ int get_next_id(struct ppd_system *system);
  * @param id The id to search for
  * @return NULL if nothing found. The found stock item
  */
-struct ppd_node *find_id(struct ppd_system *system, char *id);
+struct ppd_stock *find_id(struct ppd_system *system, char *id);
 
 /**
  * Mallocs a node and returns if it worked

@@ -74,8 +74,8 @@ BOOLEAN add_stock(struct ppd_stock stock, struct ppd_system *system) {
 
    /* If stock was not added throughout the list the item must fit at the
     * very end*/
-   if (!stock_added && current == NULL) {
-      last->next = new_node;
+   if (!stock_added && current->next == NULL) {
+      current->next = new_node;
       stock_added = TRUE;
    }
    /* If we didn't add the stock for some reason free the memory and quit*/
@@ -234,7 +234,7 @@ int get_next_id(struct ppd_system *system) {
    BOOLEAN int_success, not_a_zero_found;
 
    /* If init fails, there are no nodes, so start from one*/
-   if (!init_node(&node, system))
+   if (!init_node(&current, system))
       return 1;
    /* Iterate through all the nodes and analyse their IDs */
    do {
@@ -344,7 +344,7 @@ BOOLEAN save_stock(struct ppd_system *system) {
 
 /* If init fails empty the stock file and return true, as there is nothing to
  * save*/
-   if (!init_node(&node)) {
+   if (!init_node(&node, system)) {
       stock_file = fopen(system->stock_file_name, "w");
       fclose(stock_file);
       return TRUE;

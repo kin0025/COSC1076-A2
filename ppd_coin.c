@@ -246,8 +246,8 @@ BOOLEAN calculate_change(struct coin change[NUM_DENOMS], int change_amount,
       /* Loop through denoms to find the first one that is valid*/
       for (denom = NUM_DENOMS - 1; denom > 0; denom--) {
          denom_value = denom_valuer(denom);
-         /* If we don't go into negative change (giving the user more money back than
-         * they should get) it is valid */
+         /* If we don't go into negative change (giving the user more money
+          * back than they should get) it is valid */
          if ((change_amount - denom_value) >= 0) {
             /* If removing succeeds (we have coins to give) */
             if (remove_coin_denom(coins, denom, 1)) {
