@@ -460,8 +460,9 @@ BOOLEAN to_int(char *input, int *output) {
    char *ptr = NULL;
    BOOLEAN no_error = TRUE;
    /* Convert the remaining to integer */
-   *output = (int) strtol(input, &ptr, BASE);
-
+   if (input != NULL) {
+      *output = (int) strtol(input, &ptr, BASE);
+   }
    /* Check that the integer conversion went successfully */
    if (*output == -1 || ptr == input || strlen(ptr) != 0) {
       no_error = FALSE;
@@ -486,7 +487,9 @@ BOOLEAN string_to_price(struct price *price_amount, char *price_input) {
    /* Tokenise the string and extract the dollar amount*/
    token = strtok(price_input, PRICEDELIM);
    /* Convert, validate and set the dollar amount */
-   int_success = to_int(token, &amount);
+   if (token != NULL) {
+      int_success = to_int(token, &amount);
+   }
    if (token != NULL && int_success && amount < MAX_DOLLARS_PRICE) {
       price_amount->dollars = amount;
    } else {
@@ -495,8 +498,9 @@ BOOLEAN string_to_price(struct price *price_amount, char *price_input) {
 
    /* Do the same for the cents amount */
    token = strtok(NULL, PRICEDELIM);
-   int_success = to_int(token, &amount);
-
+   if (token != NULL) {
+      int_success = to_int(token, &amount);
+   }
    /* Check if the cents amount is less than the maximum dollar amount, a
     * valid increment of cents and integer conversion completed */
    if (token != NULL && int_success && amount < 100 && (amount % MINUMUM_DENOM)
