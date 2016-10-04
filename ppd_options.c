@@ -114,19 +114,18 @@ BOOLEAN purchase_item(struct ppd_system *system) {
    /* Find the item, and if it can't be found reprompt for input until either
     * the user elects to quit, or we find a valid item */
 
-   node = find_id(system, id);
-   while (node == NULL) {
+   item = find_id(system, id);
+   while (item == NULL) {
       printf("ID not found. Please try again:");
       no_quit = read_user_input(id, IDLEN);
       if (!no_quit) {
          printf("Returning to menu\n");
          /* As we are not quitting due to an error, instead due to user choice,
-      * return true */
+         * return true */
          return TRUE;
       }
-      node = find_id(system, id);
+      item = find_id(system, id);
    }
-   item = node->data;
    /* If there is none of the item left return false */
    if (item->on_hand == 0) {
       printf("The item you have selected is out of stock.\n");
@@ -367,7 +366,7 @@ BOOLEAN remove_item(struct ppd_system *system) {
 
    /* Get a yes or no input for removbing the item */
    printf("Do you want to remove %s. You cannot undo this action. (Y/N)",
-          item->data->name);
+          item->name);
    no_quit = read_user_input(yes_no_input, YESNOLEN);
    if (!no_quit) {
       return TRUE;

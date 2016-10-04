@@ -41,14 +41,26 @@
  **/
 #define DESCLEN 255
 
-
+/**
+ * The maximum string length of a cost inclusing delimiter
+ */
 #define COSTLEN 6
 
+/**
+ * The number of delims in a single saved stock entry
+ */
 #define NUMBERDELIMS 5
 
+/**
+ * The maximum string length of on hand
+ */
 #define ONHANDLEN 3
 
+/**
+ * The maximum length of a line in the save file
+ */
 #define FILE_LINE_LEN (IDLEN+NAMELEN+DESCLEN+COSTLEN+ONHANDLEN+NUMBERDELIMS)
+
 /**
  * The default coin level to reset the coins to on request
  **/
@@ -161,36 +173,113 @@ struct ppd_system {
     BOOLEAN coin_from_file;
 };
 
-
+/**
+ * Initialises the list to empty values
+ * @param system The system that contains the list to be initialised
+ * @return whether the list was properly initialised
+ */
 BOOLEAN init_list(struct ppd_system *system);
 
+/**
+ * Adding item stock to the item_list enclosed in system in alphavetical order.
+ * @param stock A populated stock item to be added to the list
+ * @param system The system to add the item to
+ * @return true if the item was added, false if any error was encountered
+ * whilst adding.
+ */
 BOOLEAN add_stock(struct ppd_stock stock, struct ppd_system *system);
 
+/**
+ * Removes stock from based on an ID given
+ * @param system The system that contains the item_list that we are searching in
+ * @param id The id that we are searching for
+ * @return Whether the item was found and deleted
+ */
 BOOLEAN remove_stock(struct ppd_system *system, char id[IDLEN + 1]);
 
+/**
+ * Returns the length of the largest description in the system's list
+ * @param system The system that contains the list
+ * @return the length of the larges object
+ */
 int get_largest_description(struct ppd_system *system);
 
+/**
+ * Returns the length of the largest name in the system's list
+ * @param system The system that contains the list
+ * @return the length of the largest object
+ */
 int get_largest_name(struct ppd_system *system);
 
-
+/**
+ * Returns the number of the next ID that hasn't been used
+ * @param system The system to search through
+ * @return the next unused/never used(assuming the largest ID node never gets
+ * deleted, as we have no system to store these) id number
+ */
 int get_next_id(struct ppd_system *system);
 
+/**
+ * Finds the stock that owns the ID and returns it
+ * @param system The system item that contains the item list to search through
+ * @param id The id to search for
+ * @return NULL if nothing found. The found stock item
+ */
 struct ppd_node *find_id(struct ppd_system *system, char *id);
 
+/**
+ * Mallocs a node and returns if it worked
+ * @return The memory pointer that was malloced
+ */
 struct ppd_node *create_node(void);
 
+/**
+ * Frees the memory of a node
+ * @param node The node that needs to have its memory freed. Should have been
+ * malloced prior
+ */
 void del_node(struct ppd_node *node);
 
+/**
+ * Converts a stock item into a delimited, formatted string
+ * @param string The string to be output into
+ * @param node The node to make the string out of
+ * @return Whether a string was made
+ */
 BOOLEAN stock_to_string(char string[FILE_LINE_LEN], struct ppd_node *node);
 
+/**
+ * Save all the items to the file located in the system for data
+ * @param system Contains the file name to save to and the list to be saved
+ * @return Whether the save completed
+ */
 BOOLEAN save_stock(struct ppd_system *system);
 
+/** Prints a single stock item. No validation needed or occurs*/
 void print_stock(struct ppd_stock stock_item);
 
+/**
+ * Checks for a next node and increments the current node in the lsit if
+ * possible.
+ * @param node The node to be incremented
+ * @return
+ */
 BOOLEAN next_node(struct ppd_node **node);
 
+/**
+ * Initialises a node to the head position of the item_list
+ * @param node The node to be initialised to a position
+ * @param system The system that contains the list
+ * @return Whether the initialisation completed
+ */
 BOOLEAN init_node(struct ppd_node **node, struct ppd_system *system);
 
+/**
+ * Checks if an ID is syntaxically valid
+ * @param id The id to check
+ * @param system the system to check for duplicates in
+ * @return Whether the ID is valid or not
+ */
 BOOLEAN is_valid_id(char *id, struct ppd_system *system);
 
 #endif

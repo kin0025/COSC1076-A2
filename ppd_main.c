@@ -88,7 +88,7 @@ int main(int argc, char **argv) {
       return EXIT_FAILURE;
    }
    /* test if everything has been initialised correctly */
-/* TODO:ADD INIT STUFF */
+
    if (system.item_list->count == 0) {
       printf("Nothing was loaded from file. Check your input formatting and "
                      "file name.\n");
