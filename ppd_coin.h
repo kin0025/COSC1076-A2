@@ -122,9 +122,7 @@ BOOLEAN is_valid_denom(enum denomination denom);
 /* Returns the number of coins of type denom in the cash register */
 int count_coins(struct coin cash_register[NUM_DENOMS], enum denomination denom);
 
-/** Converts a cents value of coins into a price value with seperate cents
- * dollar amounts, and returns it. */
-struct price coins_to_price(int cents);
+
 
 /** Displays the coins in the order they are in the cash register */
 void display_coins_imp(struct ppd_system *system);
@@ -139,7 +137,7 @@ BOOLEAN calculate_change(struct coin change[NUM_DENOMS], int change_amount,
                          struct ppd_system *system);
 
 /** Counts the number of decimal places the int has */
-int num_places(int n);
+static int num_places(int n);
 
 /** Get the type of denom from the unit value*/
 enum denom_type type_of_denom(unsigned int *unit_value);

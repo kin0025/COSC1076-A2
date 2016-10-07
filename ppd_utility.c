@@ -379,6 +379,7 @@ BOOLEAN read_file_input(char *buffer, int length, FILE *file) {
  * file, with expected length of length*/
 BOOLEAN read_user_input(char *buffer, int length) {
    BOOLEAN overflow = FALSE;
+   int i, len;
    do {
       /* Check for EOF input and return false, receive input */
       if (fgets(buffer, length + EXTRACHARS, stdin) == NULL) {
@@ -402,6 +403,14 @@ BOOLEAN read_user_input(char *buffer, int length) {
    /*If there was only an EOL character return false */
    if (strlen(buffer) == 0) {
       return FALSE;
+   } else {
+      len = strlen(buffer);
+      for (i = 0; i < len; i++) {
+         if (buffer[i] == DATA_DELIMITER[0]) {
+            printf("Input cannot include %s\n", DATA_DELIMITER);
+            return FALSE;
+         }
+      }
    }
    return TRUE;
 }
@@ -588,6 +597,18 @@ int count_delims(char *delim, char *string) {
    return count_delims(delim, ++string);
 }
 
+/** Converts a cents value of coins into a price value with seperate cents
+ * dollar amounts, and returns it.
+ */
+struct price coins_to_price(int cents) {
+   struct price return_val;
+   /* Use integer casting and truncation to get the dollar value */
+   return_val.dollars = (int) cents / CENTS_IN_DOLLAR;
+   /* Then use the truncated value to get the cents only */
+   return_val.cents = (int) cents - (return_val.dollars * CENTS_IN_DOLLAR);
+   return return_val;
+}
+
 /**
  * Prints an error message, closes the file stream and returns false
  * @param field_type The type of invalid field. Printed in error message
@@ -604,4 +625,21 @@ BOOLEAN file_error_message(char *field_type, int line_number, const char
            file_name);
    fclose(file);
    return FALSE;
+}
+
+
+/**
+ * Replaces all of character initial in string with character special
+ * @param string The input string
+ * @param initial the character to be replaced
+ * @param special The character to be subsituted
+ */
+void replace_char(char *string, char initial, char special) {
+   int i = 0;
+   for (i = 0; i < strlen(string); i++) {
+      if (string[i] == initial) {
+         string[i] = special;
+      }
+   }
+
 }

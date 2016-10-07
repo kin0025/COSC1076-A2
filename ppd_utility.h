@@ -151,6 +151,10 @@ BOOLEAN rename_file(const char *name, BOOLEAN reverse);
  */
 int count_delims(char *delim, char *string);
 
+/** Converts a cents value of coins into a price value with seperate cents
+ * dollar amounts, and returns it. */
+struct price coins_to_price(int cents);
+
 /**
  * Prints an error message, closes the file stream and returns false
  * @param field_type The type of invalid field. Printed in error message
@@ -162,4 +166,12 @@ int count_delims(char *delim, char *string);
 BOOLEAN file_error_message(char *field_type, int line_number,
                            const char *file_name, FILE *file);
 
+
+/**
+ * Replaces all of character initial in string with character special
+ * @param string The input string
+ * @param initial the character to be replaced
+ * @param special The character to be subsituted
+ */
+void replace_char(char *string, char initial, char special);
 #endif

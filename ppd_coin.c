@@ -180,7 +180,7 @@ void display_coins_imp(struct ppd_system *system) {
    read_rest_of_line();
 }
 
-/* Save the coins to a file and return whether it succeed */
+/** Save the coins to a file and return whether it succeed */
 BOOLEAN save_coins(struct ppd_system *system) {
    FILE *coin_file = NULL;
    int i;
@@ -207,18 +207,6 @@ BOOLEAN save_coins(struct ppd_system *system) {
       }
    }
    return TRUE;
-}
-
-/** Converts a cents value of coins into a price value with seperate cents
- * dollar amounts, and returns it.
- */
-struct price coins_to_price(int cents) {
-   struct price return_val;
-   /* Use integer casting and truncation to get the dollar value */
-   return_val.dollars = (int) cents / CENTS_IN_DOLLAR;
-   /* Then use the truncated value to get the cents only */
-   return_val.cents = (int) cents - (return_val.dollars * CENTS_IN_DOLLAR);
-   return return_val;
 }
 
 /** Calculates the change required for the coin amount (change_amount),
@@ -281,7 +269,7 @@ BOOLEAN calculate_change(struct coin change[NUM_DENOMS], int change_amount,
  * Originally went there looking for a valid Log10, but got this instead.
  * Unmodified from original. Credit to paxdiablo
  * Comments my own*/
-int num_places(int n) {
+static int num_places(int n) {
    /* Check if the input is less than zero. If it is, make it positive and
     * keep going. If it is MIN_INT, pass INT_MAX (may not be the same),
     * otherwise use -n*/
